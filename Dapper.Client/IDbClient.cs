@@ -5,8 +5,7 @@ namespace Dapper.Client
     /// </summary>
     public partial interface IDbClient
     {
-         string ConnectionString { get; }
-
-         ITransactionKeeper CreateTransaction();
+        string ConnectionString { get; }
+        ITransactionKeeper CreateTransaction();
     }
 }
