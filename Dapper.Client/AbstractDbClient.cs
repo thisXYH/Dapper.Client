@@ -27,9 +27,9 @@ namespace Dapper.Client
         /// <value></value>
         protected abstract DbProviderFactory Factory { get; }
 
-        public ITransactionKeeper CreateTransaction()
+        public virtual ITransactionKeeper CreateTransaction()
         {
-            throw new NotImplementedException();
+            return new ThreadLocalTransactionKeeper(Factory, ConnectionString, DefaultTimeout);
         }
 
         protected virtual DbConnection CreateConnection()
@@ -68,7 +68,7 @@ namespace Dapper.Client
             if (connection.State != ConnectionState.Open)
                 await connection.OpenAsync();
         }
-        
+
         private async Task<DbConnection> CreateAndOpenConnectionAsync()
         {
             var connection = CreateConnection();
