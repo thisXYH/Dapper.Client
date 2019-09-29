@@ -5,25 +5,20 @@ namespace Dapper.Client
 {
     public class SqlDbClient : AbstractDbClient
     {
-        private readonly string _connectionString;
-
         /// <summary>
-        /// 使用指定的数据库类型和连接字符串初始化<see cref="SqlDbClient"/>的新实例。
+        /// 使用连接字符串初始化<see cref="SqlDbClient"/>的新实例。
         /// </summary>
         /// <param name="connectionString">连接字符串。</param>
         public SqlDbClient(string connectionString)
         {
-            ArgAssert.NotNullOrEmptyOrWhitespace(connectionString, "connectionString");
-            _connectionString = connectionString;
+            ArgAssert.NotNullOrEmptyOrWhitespace(connectionString, nameof(connectionString));
+            ConnectionString = connectionString;
         }
 
         /// <summary>
         /// 获取当前实例所使用的数据库连接字符串。
         /// </summary>
-        public override string ConnectionString
-        {
-            get { return _connectionString; }
-        }
+        public override string ConnectionString { get; }
 
         /// <summary>
         /// 获取当前实例所使用的<see cref="DbProviderFactory"/>实例。
