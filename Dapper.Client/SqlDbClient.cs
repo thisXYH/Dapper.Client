@@ -21,7 +21,10 @@ namespace Dapper.Client
             ConnectionString = connectionString;
         }
 
-        public override IDbTransaction Transaction { get; }
+        /// <summary>
+        /// 事务对象，默认通过客户端直接调用的时候为null。
+        /// </summary>
+        protected override IDbTransaction Transaction => null;
 
         /// <summary>
         /// 获取当前实例所使用的数据库连接字符串。

@@ -3,35 +3,22 @@ using System.Threading;
 
 namespace Dapper.Client
 {
+    /// <summary>
+    /// <see cref="CommandDefinition"/>的简化版，
+    /// 其中缺少了两个属性<see cref="CommandDefinition.Transaction"/>,<see cref="CommandDefinition.CommandTimeout"/>。
+    /// </summary>
     public class SlimCommandDefinition
     {
         public string CommandText { get; }
 
-        /// <summary>
-        /// The parameters associated with the command
-        /// </summary>
         public object Parameters { get; }
 
-        /// <summary>
-        /// The type of command that the command-text represents
-        /// </summary>
         public CommandType? CommandType { get; }
 
         public CommandFlags Flags { get; }
 
-        /// <summary>
-        /// For asynchronous operations, the cancellation-token
-        /// </summary>
         public CancellationToken CancellationToken { get; }
 
-        /// <summary>
-        /// Initialize the command definition
-        /// </summary>
-        /// <param name="commandText">The text for this command.</param>
-        /// <param name="parameters">The parameters for this command.</param>
-        /// <param name="commandType">The <see cref="CommandType"/> for this command.</param>
-        /// <param name="flags">The behavior flags for this command.</param>
-        /// <param name="cancellationToken">The cancellation token for this command.</param>
         public SlimCommandDefinition(
             string commandText, object parameters = null,
             CommandType? commandType = null, CommandFlags flags = CommandFlags.Buffered,

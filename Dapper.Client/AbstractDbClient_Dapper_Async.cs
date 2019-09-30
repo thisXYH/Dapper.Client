@@ -14,7 +14,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.ExecuteAsync(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -53,7 +53,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteReaderAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), commandBehavior);
+                return await connection.ExecuteReaderAsync(ConvertSlimCommandDefinition(command), commandBehavior);
             }
             catch (Exception ex)
             {
@@ -71,7 +71,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteReaderAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.ExecuteReaderAsync(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -108,7 +108,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteScalarAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.ExecuteScalarAsync(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -165,7 +165,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteScalarAsync<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.ExecuteScalarAsync<T>(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -184,7 +184,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TReturn>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), map, splitOn);
+                return await connection.QueryAsync<TFirst, TSecond, TReturn>(ConvertSlimCommandDefinition(command), map, splitOn);
             }
             catch (Exception ex)
             {
@@ -241,7 +241,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QueryAsync(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -279,7 +279,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TReturn>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), map, splitOn);
+                return await connection.QueryAsync<TFirst, TSecond, TThird, TReturn>(ConvertSlimCommandDefinition(command), map, splitOn);
             }
             catch (Exception ex)
             {
@@ -317,7 +317,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TReturn>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), map, splitOn);
+                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TReturn>(ConvertSlimCommandDefinition(command), map, splitOn);
             }
             catch (Exception ex)
             {
@@ -336,7 +336,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync(type, ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QueryAsync(type, ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -412,7 +412,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), map, splitOn);
+                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(ConvertSlimCommandDefinition(command), map, splitOn);
             }
             catch (Exception ex)
             {
@@ -450,7 +450,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), map, splitOn);
+                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(ConvertSlimCommandDefinition(command), map, splitOn);
             }
             catch (Exception ex)
             {
@@ -507,7 +507,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), map, splitOn);
+                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(ConvertSlimCommandDefinition(command), map, splitOn);
             }
             catch (Exception ex)
             {
@@ -526,7 +526,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QueryAsync<T>(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -545,7 +545,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QueryFirstAsync(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -564,7 +564,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstAsync<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QueryFirstAsync<T>(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -602,7 +602,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstAsync(type, ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QueryFirstAsync(type, ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -659,7 +659,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstOrDefaultAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QueryFirstOrDefaultAsync(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -735,7 +735,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstOrDefaultAsync<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QueryFirstOrDefaultAsync<T>(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -754,7 +754,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstOrDefaultAsync(type, ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QueryFirstOrDefaultAsync(type, ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -773,7 +773,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryMultipleAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QueryMultipleAsync(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -868,7 +868,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleAsync(type, ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QuerySingleAsync(type, ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -887,7 +887,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleAsync<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QuerySingleAsync<T>(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -906,7 +906,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QuerySingleAsync(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -944,7 +944,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleOrDefaultAsync(type, ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QuerySingleOrDefaultAsync(type, ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -1001,7 +1001,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleOrDefaultAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QuerySingleOrDefaultAsync(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -1020,7 +1020,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleOrDefaultAsync<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return await connection.QuerySingleOrDefaultAsync<T>(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {

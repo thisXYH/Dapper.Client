@@ -25,7 +25,7 @@ namespace Dapper.Client
         /// 扩展方法参数都包含了Transaction，所以在AbstractDbClient中添加该字段，
         /// 理论上当未调用过<see cref="CreateTransaction"/>时都为null。
         /// </summary>
-        public abstract IDbTransaction Transaction { get; }
+        protected abstract IDbTransaction Transaction { get; }
 
         /// <summary>
         /// 获取当前实例所使用的数据库连接字符串。
@@ -43,13 +43,18 @@ namespace Dapper.Client
             return new ThreadLocalTransactionKeeper(Factory, ConnectionString, DefaultTimeout);
         }
 
-        protected CommandDefinition ConvertSlimCommandDefinition(
-            SlimCommandDefinition slimCommandDefinition, IDbTransaction transaction, int? commandTimeout)
+        /// <summary>
+        /// 把<see cref="slimCommandDefinition"/>转成<see cref="CommandDefinition"/>。
+        /// </summary>
+        /// <param name="slimCommandDefinition"></param>
+        /// <returns></returns>
+        protected CommandDefinition ConvertSlimCommandDefinition(SlimCommandDefinition slimCommandDefinition)
         {
             return new CommandDefinition(
                 slimCommandDefinition.CommandText,
                 slimCommandDefinition.Parameters,
-                transaction, commandTimeout,
+                Transaction,
+                DefaultTimeout,
                 slimCommandDefinition.CommandType,
                 slimCommandDefinition.Flags,
                 slimCommandDefinition.CancellationToken);

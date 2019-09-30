@@ -34,8 +34,23 @@ namespace Dapper.Client
 
         // 事务的嵌套层级。
         // ITransactionKeeper 接口继承了 IDbClient，所以具有 CreateTrasaction 方法。
-        // 刚创建的事务潜逃层级为0，事务内再次创建事务时+1，并返回（复用）当前实例。
+        // 刚创建的事务嵌套层级为0，事务内再次创建事务时+1，并返回（复用）当前实例。
         private int _embeddedLevel;
+
+        /// <summary>
+        /// 当前事务的 DbTransaction 实例。
+        /// </summary>
+        protected override IDbTransaction Transaction => _transaction;
+
+        /// <summary>
+        /// 获取当前实例所使用的数据库连接字符串。
+        /// </summary>
+        public override string ConnectionString { get; }
+
+        /// <summary>
+        /// 获取当前实例所使用的<see cref="DbProviderFactory"/>实例。
+        /// </summary>
+        protected override DbProviderFactory Factory { get; }
 
         /// <summary>
         /// 创建<see cref="ThreadLocalTransactionKeeper"/>的新实例。
@@ -54,8 +69,6 @@ namespace Dapper.Client
             Factory = dbProviderFactory;
             ConnectionString = connectionString;
             DefaultTimeout = commandTimeout;
-            //直接创建事务。
-            _transaction = _connection.BeginTransaction();
         }
 
         /// <inheritdoc />
@@ -88,18 +101,6 @@ namespace Dapper.Client
                 // 忽略异常，否则在GC线程内抛出异常会导致整个程序崩溃。
             }
         }
-
-        public override IDbTransaction Transaction { get; }
-
-        /// <summary>
-        /// 获取当前实例所使用的数据库连接字符串。
-        /// </summary>
-        public override string ConnectionString { get; }
-
-        /// <summary>
-        /// 获取当前实例所使用的<see cref="DbProviderFactory"/>实例。
-        /// </summary>
-        protected override DbProviderFactory Factory { get; }
 
         /// <inheritdoc cref="IDisposable.Dispose" />
         public void Dispose()
@@ -156,6 +157,10 @@ namespace Dapper.Client
                 return _connection;
 
             _connection = base.CreateConnection();
+
+            // 开启事务。
+            _transaction = _connection.BeginTransaction();
+
             return _connection;
         }
 
@@ -178,7 +183,7 @@ namespace Dapper.Client
         private void CheckStatus()
         {
             if (_transactionCompleted)
-                throw new InvalidOperationException("The transaction was finished.");
+                throw new InvalidOperationException("事务已完成.");
 
             if (_disposed)
                 throw new ObjectDisposedException(GetType().Name);
@@ -199,7 +204,7 @@ namespace Dapper.Client
 
                 var state = _connection.State;
                 if (state == ConnectionState.Closed || state == ConnectionState.Broken)
-                    throw new InvalidOperationException("The database connction was closed.");
+                    throw new InvalidOperationException("数据库连接已关闭.");
 
                 CheckStatus();
                 return true;

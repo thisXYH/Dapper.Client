@@ -33,7 +33,7 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.Execute(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return connection.Execute(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -56,7 +56,7 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.ExecuteReader(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), commandBehavior);
+                return connection.ExecuteReader(ConvertSlimCommandDefinition(command), commandBehavior);
             }
             catch (Exception ex)
             {
@@ -75,7 +75,7 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.ExecuteReader(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return connection.ExecuteReader(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -157,7 +157,7 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.ExecuteScalar<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return connection.ExecuteScalar<T>(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -176,7 +176,7 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.ExecuteScalar(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return connection.ExecuteScalar(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -387,7 +387,7 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.Query<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return connection.Query<T>(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -408,7 +408,7 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QueryFirst<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return connection.QueryFirst<T>(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -505,7 +505,7 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QueryFirstOrDefault<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return connection.QueryFirstOrDefault<T>(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -583,7 +583,7 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QueryMultiple(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return connection.QueryMultiple(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -623,7 +623,7 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QuerySingle<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return connection.QuerySingle<T>(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
@@ -701,7 +701,7 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QuerySingleOrDefault<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+                return connection.QuerySingleOrDefault<T>(ConvertSlimCommandDefinition(command));
             }
             catch (Exception ex)
             {
