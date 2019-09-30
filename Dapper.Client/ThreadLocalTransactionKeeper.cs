@@ -46,7 +46,7 @@ namespace Dapper.Client
         /// 指定事务内的命令的默认执行超时时间，当方法没有单独制定超时时，套用此超时值。
         /// </param>
         public ThreadLocalTransactionKeeper(
-            DbProviderFactory dbProviderFactory, string connectionString, int commandTimeout)
+            DbProviderFactory dbProviderFactory, string connectionString, int? commandTimeout = null)
         {
             ArgAssert.NotNull(dbProviderFactory, nameof(dbProviderFactory));
             ArgAssert.NotNullOrEmptyOrWhitespace(connectionString, nameof(connectionString));
@@ -88,6 +88,8 @@ namespace Dapper.Client
                 // 忽略异常，否则在GC线程内抛出异常会导致整个程序崩溃。
             }
         }
+
+        public override IDbTransaction Transaction { get; }
 
         /// <summary>
         /// 获取当前实例所使用的数据库连接字符串。

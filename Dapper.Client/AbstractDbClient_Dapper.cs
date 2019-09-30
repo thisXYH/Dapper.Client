@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace Dapper.Client
 {
-    public abstract partial class AbstractDbClient : IDbClient
+    public abstract partial class AbstractDbClient
     {
-        public int Execute(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public int Execute(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.Execute(sql, param, transaction, commandTimeout, commandType);
+                return connection.Execute(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -27,74 +27,13 @@ namespace Dapper.Client
             }
         }
 
-        public int Execute(CommandDefinition command)
+        public int Execute(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.Execute(command);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-
-
-
-
-        public IDataReader ExecuteReader(CommandDefinition command, CommandBehavior commandBehavior)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.ExecuteReader(command, commandBehavior);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        public IDataReader ExecuteReader(CommandDefinition command)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.ExecuteReader(command);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        public IDataReader ExecuteReader(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.ExecuteReader(sql, param, transaction, commandTimeout, commandType);
+                return connection.Execute(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -111,15 +50,13 @@ namespace Dapper.Client
 
 
 
-
-
-        public object ExecuteScalar(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public IDataReader ExecuteReader(SlimCommandDefinition command, CommandBehavior commandBehavior)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.ExecuteScalar(sql, param, transaction, commandTimeout, commandType);
+                return connection.ExecuteReader(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), commandBehavior);
             }
             catch (Exception ex)
             {
@@ -132,13 +69,13 @@ namespace Dapper.Client
             }
         }
 
-        public T ExecuteScalar<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public IDataReader ExecuteReader(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.ExecuteScalar<T>(sql, param, transaction, commandTimeout, commandType);
+                return connection.ExecuteReader(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -151,13 +88,13 @@ namespace Dapper.Client
             }
         }
 
-        public T ExecuteScalar<T>(CommandDefinition command)
+        public IDataReader ExecuteReader(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.ExecuteScalar<T>(command);
+                return connection.ExecuteReader(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -170,13 +107,76 @@ namespace Dapper.Client
             }
         }
 
-        public object ExecuteScalar(CommandDefinition command)
+
+
+
+
+
+
+        public object ExecuteScalar(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.ExecuteScalar(command);
+                return connection.ExecuteScalar(sql, param, Transaction, DefaultTimeout, commandType);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (connection != null)
+                    CloseConnection(connection);
+            }
+        }
+
+        public T ExecuteScalar<T>(string sql, object param = null, CommandType? commandType = null)
+        {
+            DbConnection connection = null;
+            try
+            {
+                connection = CreateAndOpenConnection();
+                return connection.ExecuteScalar<T>(sql, param, Transaction, DefaultTimeout, commandType);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (connection != null)
+                    CloseConnection(connection);
+            }
+        }
+
+        public T ExecuteScalar<T>(SlimCommandDefinition command)
+        {
+            DbConnection connection = null;
+            try
+            {
+                connection = CreateAndOpenConnection();
+                return connection.ExecuteScalar<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (connection != null)
+                    CloseConnection(connection);
+            }
+        }
+
+        public object ExecuteScalar(SlimCommandDefinition command)
+        {
+            DbConnection connection = null;
+            try
+            {
+                connection = CreateAndOpenConnection();
+                return connection.ExecuteScalar(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -381,13 +381,13 @@ namespace Dapper.Client
             }
         }
 
-        public IEnumerable<T> Query<T>(CommandDefinition command)
+        public IEnumerable<T> Query<T>(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.Query<T>(command);
+                return connection.Query<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -402,13 +402,13 @@ namespace Dapper.Client
 
 
 
-        public T QueryFirst<T>(CommandDefinition command)
+        public T QueryFirst<T>(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QueryFirst<T>(command);
+                return connection.QueryFirst<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -421,13 +421,13 @@ namespace Dapper.Client
             }
         }
 
-        public object QueryFirst(Type type, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public object QueryFirst(Type type, string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QueryFirst(type, sql, param, transaction, commandTimeout, commandType);
+                return connection.QueryFirst(type, sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -440,13 +440,13 @@ namespace Dapper.Client
             }
         }
 
-        public T QueryFirst<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public T QueryFirst<T>(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QueryFirst<T>(sql, param, transaction, commandTimeout, commandType);
+                return connection.QueryFirst<T>(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -459,91 +459,13 @@ namespace Dapper.Client
             }
         }
 
-        public dynamic QueryFirst(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public dynamic QueryFirst(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QueryFirst(sql, param, transaction, commandTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-
-
-        public T QueryFirstOrDefault<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QueryFirstOrDefault<T>(sql, param, transaction, commandTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        public T QueryFirstOrDefault<T>(CommandDefinition command)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QueryFirstOrDefault<T>(command);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        public dynamic QueryFirstOrDefault(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QueryFirstOrDefault(sql, param, transaction, commandTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        public object QueryFirstOrDefault(Type type, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QueryFirstOrDefault(type, sql, param, transaction, commandTimeout, commandType);
+                return connection.QueryFirst(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -558,13 +480,13 @@ namespace Dapper.Client
 
 
 
-        public SqlMapper.GridReader QueryMultiple(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public T QueryFirstOrDefault<T>(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QueryMultiple(sql, param, transaction, commandTimeout, commandType);
+                return connection.QueryFirstOrDefault<T>(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -577,13 +499,13 @@ namespace Dapper.Client
             }
         }
 
-        public SqlMapper.GridReader QueryMultiple(CommandDefinition command)
+        public T QueryFirstOrDefault<T>(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QueryMultiple(command);
+                return connection.QueryFirstOrDefault<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -596,15 +518,13 @@ namespace Dapper.Client
             }
         }
 
-
-
-        public object QuerySingle(Type type, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public dynamic QueryFirstOrDefault(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QuerySingle(sql, param, transaction, commandTimeout, commandType);
+                return connection.QueryFirstOrDefault(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -617,51 +537,13 @@ namespace Dapper.Client
             }
         }
 
-        public T QuerySingle<T>(CommandDefinition command)
+        public object QueryFirstOrDefault(Type type, string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QuerySingle<T>(command);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        public T QuerySingle<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QuerySingle<T>(sql, param, transaction, commandTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        public dynamic QuerySingle(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QuerySingle(sql, param, transaction, commandTimeout, commandType);
+                return connection.QueryFirstOrDefault(type, sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -676,13 +558,13 @@ namespace Dapper.Client
 
 
 
-        public dynamic QuerySingleOrDefault(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public SqlMapper.GridReader QueryMultiple(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QuerySingleOrDefault(sql, param, transaction, commandTimeout, commandType);
+                return connection.QueryMultiple(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -695,13 +577,13 @@ namespace Dapper.Client
             }
         }
 
-        public T QuerySingleOrDefault<T>(CommandDefinition command)
+        public SqlMapper.GridReader QueryMultiple(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QuerySingleOrDefault<T>(command);
+                return connection.QueryMultiple(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -714,13 +596,15 @@ namespace Dapper.Client
             }
         }
 
-        public T QuerySingleOrDefault<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+
+
+        public object QuerySingle(Type type, string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QuerySingleOrDefault<T>(sql, param, transaction, commandTimeout, commandType);
+                return connection.QuerySingle(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -733,13 +617,129 @@ namespace Dapper.Client
             }
         }
 
-        public object QuerySingleOrDefault(Type type, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public T QuerySingle<T>(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.QuerySingleOrDefault(type, sql, param, transaction, commandTimeout, commandType);
+                return connection.QuerySingle<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (connection != null)
+                    CloseConnection(connection);
+            }
+        }
+
+        public T QuerySingle<T>(string sql, object param = null, CommandType? commandType = null)
+        {
+            DbConnection connection = null;
+            try
+            {
+                connection = CreateAndOpenConnection();
+                return connection.QuerySingle<T>(sql, param, Transaction, DefaultTimeout, commandType);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (connection != null)
+                    CloseConnection(connection);
+            }
+        }
+
+        public dynamic QuerySingle(string sql, object param = null, CommandType? commandType = null)
+        {
+            DbConnection connection = null;
+            try
+            {
+                connection = CreateAndOpenConnection();
+                return connection.QuerySingle(sql, param, Transaction, DefaultTimeout, commandType);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (connection != null)
+                    CloseConnection(connection);
+            }
+        }
+
+
+
+        public dynamic QuerySingleOrDefault(string sql, object param = null, CommandType? commandType = null)
+        {
+            DbConnection connection = null;
+            try
+            {
+                connection = CreateAndOpenConnection();
+                return connection.QuerySingleOrDefault(sql, param, Transaction, DefaultTimeout, commandType);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (connection != null)
+                    CloseConnection(connection);
+            }
+        }
+
+        public T QuerySingleOrDefault<T>(SlimCommandDefinition command)
+        {
+            DbConnection connection = null;
+            try
+            {
+                connection = CreateAndOpenConnection();
+                return connection.QuerySingleOrDefault<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (connection != null)
+                    CloseConnection(connection);
+            }
+        }
+
+        public T QuerySingleOrDefault<T>(string sql, object param = null, CommandType? commandType = null)
+        {
+            DbConnection connection = null;
+            try
+            {
+                connection = CreateAndOpenConnection();
+                return connection.QuerySingleOrDefault<T>(sql, param, Transaction, DefaultTimeout, commandType);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (connection != null)
+                    CloseConnection(connection);
+            }
+        }
+
+        public object QuerySingleOrDefault(Type type, string sql, object param = null, CommandType? commandType = null)
+        {
+            DbConnection connection = null;
+            try
+            {
+                connection = CreateAndOpenConnection();
+                return connection.QuerySingleOrDefault(type, sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {

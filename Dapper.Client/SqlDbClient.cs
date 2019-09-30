@@ -1,5 +1,11 @@
+using System.Data;
 using System.Data.Common;
+
+#if NET461
+using System.Data.SqlClient;
+#elif NETSTANDARD2_0
 using Microsoft.Data.SqlClient;
+#endif
 
 namespace Dapper.Client
 {
@@ -15,6 +21,8 @@ namespace Dapper.Client
             ConnectionString = connectionString;
         }
 
+        public override IDbTransaction Transaction { get; }
+
         /// <summary>
         /// 获取当前实例所使用的数据库连接字符串。
         /// </summary>
@@ -23,9 +31,6 @@ namespace Dapper.Client
         /// <summary>
         /// 获取当前实例所使用的<see cref="DbProviderFactory"/>实例。
         /// </summary>
-        protected override DbProviderFactory Factory
-        {
-            get { return SqlClientFactory.Instance; }
-        }
+        protected override DbProviderFactory Factory => SqlClientFactory.Instance;
     }
 }

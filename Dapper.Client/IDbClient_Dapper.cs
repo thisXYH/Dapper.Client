@@ -10,15 +10,15 @@ namespace Dapper.Client
     /// </summary>
     public partial interface IDbClient
     {
-        int Execute(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        int Execute(CommandDefinition command);
-        IDataReader ExecuteReader(CommandDefinition command, CommandBehavior commandBehavior);
-        IDataReader ExecuteReader(CommandDefinition command);
-        IDataReader ExecuteReader(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        object ExecuteScalar(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        T ExecuteScalar<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        T ExecuteScalar<T>(CommandDefinition command);
-        object ExecuteScalar(CommandDefinition command);
+        int Execute(string sql, object param = null,  CommandType? commandType = null);
+        int Execute(SlimCommandDefinition command);
+        IDataReader ExecuteReader(SlimCommandDefinition command, CommandBehavior commandBehavior);
+        IDataReader ExecuteReader(SlimCommandDefinition command);
+        IDataReader ExecuteReader(string sql, object param = null,  CommandType? commandType = null);
+        object ExecuteScalar(string sql, object param = null,  CommandType? commandType = null);
+        T ExecuteScalar<T>(string sql, object param = null,  CommandType? commandType = null);
+        T ExecuteScalar<T>(SlimCommandDefinition command);
+        object ExecuteScalar(SlimCommandDefinition command);
         IEnumerable<object> Query(Type type, string sql, object param = null, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null);
         IEnumerable<T> Query<T>(string sql, object param = null, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null);
         IEnumerable<TReturn> Query<TReturn>(string sql, Type[] types, Func<object[], TReturn> map, object param = null, IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null);
@@ -29,24 +29,24 @@ namespace Dapper.Client
         IEnumerable<TReturn> Query<TFirst, TSecond, TThird, TFourth, TReturn>(string sql, Func<TFirst, TSecond, TThird, TFourth, TReturn> map, object param = null, IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null);
         IEnumerable<dynamic> Query(string sql, object param = null, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null);
         IEnumerable<TReturn> Query<TFirst, TSecond, TThird, TReturn>(string sql, Func<TFirst, TSecond, TThird, TReturn> map, object param = null, IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null);
-        IEnumerable<T> Query<T>(CommandDefinition command);
-        T QueryFirst<T>(CommandDefinition command);
-        object QueryFirst(Type type, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        T QueryFirst<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        dynamic QueryFirst(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        T QueryFirstOrDefault<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        T QueryFirstOrDefault<T>(CommandDefinition command);
-        dynamic QueryFirstOrDefault(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        object QueryFirstOrDefault(Type type, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        GridReader QueryMultiple(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        GridReader QueryMultiple(CommandDefinition command);
-        object QuerySingle(Type type, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        T QuerySingle<T>(CommandDefinition command);
-        T QuerySingle<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        dynamic QuerySingle(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        dynamic QuerySingleOrDefault(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        T QuerySingleOrDefault<T>(CommandDefinition command);
-        T QuerySingleOrDefault<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-        object QuerySingleOrDefault(Type type, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
+        IEnumerable<T> Query<T>(SlimCommandDefinition command);
+        T QueryFirst<T>(SlimCommandDefinition command);
+        object QueryFirst(Type type, string sql, object param = null,  CommandType? commandType = null);
+        T QueryFirst<T>(string sql, object param = null,  CommandType? commandType = null);
+        dynamic QueryFirst(string sql, object param = null,  CommandType? commandType = null);
+        T QueryFirstOrDefault<T>(string sql, object param = null,  CommandType? commandType = null);
+        T QueryFirstOrDefault<T>(SlimCommandDefinition command);
+        dynamic QueryFirstOrDefault(string sql, object param = null,  CommandType? commandType = null);
+        object QueryFirstOrDefault(Type type, string sql, object param = null,  CommandType? commandType = null);
+        GridReader QueryMultiple(string sql, object param = null,  CommandType? commandType = null);
+        GridReader QueryMultiple(SlimCommandDefinition command);
+        object QuerySingle(Type type, string sql, object param = null,  CommandType? commandType = null);
+        T QuerySingle<T>(SlimCommandDefinition command);
+        T QuerySingle<T>(string sql, object param = null,  CommandType? commandType = null);
+        dynamic QuerySingle(string sql, object param = null,  CommandType? commandType = null);
+        dynamic QuerySingleOrDefault(string sql, object param = null,  CommandType? commandType = null);
+        T QuerySingleOrDefault<T>(SlimCommandDefinition command);
+        T QuerySingleOrDefault<T>(string sql, object param = null,  CommandType? commandType = null);
+        object QuerySingleOrDefault(Type type, string sql, object param = null,  CommandType? commandType = null);
     }
 }

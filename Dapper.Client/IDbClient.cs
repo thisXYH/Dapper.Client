@@ -6,6 +6,7 @@ namespace Dapper.Client
     public partial interface IDbClient
     {
         string ConnectionString { get; }
+
         ITransactionKeeper CreateTransaction();
     }
 }

@@ -1,6 +1,4 @@
 using NUnit.Framework;
-using Microsoft.Data.SqlClient;
-using Dapper;
 
 namespace Dapper.Client.Test
 {
@@ -14,7 +12,7 @@ namespace Dapper.Client.Test
         [Test]
         public void Test1()
         {
-            SqlConnection conn = new SqlConnection();
+            Assert.Pass();
         }
     }
 }

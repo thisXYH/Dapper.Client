@@ -8,13 +8,13 @@ namespace Dapper.Client
 {
     public abstract partial class AbstractDbClient
     {
-        public async Task<int> ExecuteAsync(CommandDefinition command)
+        public async Task<int> ExecuteAsync(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteAsync(command);
+                return await connection.ExecuteAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -27,13 +27,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<int> ExecuteAsync(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<int> ExecuteAsync(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteAsync(sql, param, transaction, commandTimeout, commandType);
+                return await connection.ExecuteAsync(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -47,13 +47,13 @@ namespace Dapper.Client
         }
 
 
-        public async Task<IDataReader> ExecuteReaderAsync(CommandDefinition command, CommandBehavior commandBehavior)
+        public async Task<IDataReader> ExecuteReaderAsync(SlimCommandDefinition command, CommandBehavior commandBehavior)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteReaderAsync(command, commandBehavior);
+                return await connection.ExecuteReaderAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), commandBehavior);
             }
             catch (Exception ex)
             {
@@ -65,13 +65,13 @@ namespace Dapper.Client
                     CloseConnection(connection);
             }
         }
-        public async Task<IDataReader> ExecuteReaderAsync(CommandDefinition command)
+        public async Task<IDataReader> ExecuteReaderAsync(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteReaderAsync(command);
+                return await connection.ExecuteReaderAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -83,32 +83,13 @@ namespace Dapper.Client
                     CloseConnection(connection);
             }
         }
-        public async Task<IDataReader> ExecuteReaderAsync(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<IDataReader> ExecuteReaderAsync(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteReaderAsync(sql, param, transaction, commandTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        public async Task<object> ExecuteScalarAsync(CommandDefinition command)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteScalarAsync(command);
+                return await connection.ExecuteReaderAsync(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -121,13 +102,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<T> ExecuteScalarAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<object> ExecuteScalarAsync(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteScalarAsync<T>(sql, param, transaction, commandTimeout, commandType);
+                return await connection.ExecuteScalarAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -140,13 +121,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<object> ExecuteScalarAsync(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<T> ExecuteScalarAsync<T>(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteScalarAsync(sql, param, transaction, commandTimeout, commandType);
+                return await connection.ExecuteScalarAsync<T>(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -159,13 +140,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<T> ExecuteScalarAsync<T>(CommandDefinition command)
+        public async Task<object> ExecuteScalarAsync(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteScalarAsync<T>(command);
+                return await connection.ExecuteScalarAsync(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -178,13 +159,32 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TReturn>(CommandDefinition command, Func<TFirst, TSecond, TReturn> map, string splitOn = "Id")
+        public async Task<T> ExecuteScalarAsync<T>(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TReturn>(command, map, splitOn);
+                return await connection.ExecuteScalarAsync<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (connection != null)
+                    CloseConnection(connection);
+            }
+        }
+
+        public async Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TReturn>(SlimCommandDefinition command, Func<TFirst, TSecond, TReturn> map, string splitOn = "Id")
+        {
+            DbConnection connection = null;
+            try
+            {
+                connection = await CreateAndOpenConnectionAsync();
+                return await connection.QueryAsync<TFirst, TSecond, TReturn>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), map, splitOn);
             }
             catch (Exception ex)
             {
@@ -216,13 +216,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<IEnumerable<dynamic>> QueryAsync(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<IEnumerable<dynamic>> QueryAsync(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync(sql, param, transaction, commandTimeout, commandType);
+                return await connection.QueryAsync(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -235,13 +235,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<IEnumerable<dynamic>> QueryAsync(CommandDefinition command)
+        public async Task<IEnumerable<dynamic>> QueryAsync(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync(command);
+                return await connection.QueryAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -273,13 +273,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TThird, TReturn>(CommandDefinition command, Func<TFirst, TSecond, TThird, TReturn> map, string splitOn = "Id")
+        public async Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TThird, TReturn>(SlimCommandDefinition command, Func<TFirst, TSecond, TThird, TReturn> map, string splitOn = "Id")
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TReturn>(command, map, splitOn);
+                return await connection.QueryAsync<TFirst, TSecond, TThird, TReturn>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), map, splitOn);
             }
             catch (Exception ex)
             {
@@ -311,13 +311,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TThird, TFourth, TReturn>(CommandDefinition command, Func<TFirst, TSecond, TThird, TFourth, TReturn> map, string splitOn = "Id")
+        public async Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TThird, TFourth, TReturn>(SlimCommandDefinition command, Func<TFirst, TSecond, TThird, TFourth, TReturn> map, string splitOn = "Id")
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TReturn>(command, map, splitOn);
+                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TReturn>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), map, splitOn);
             }
             catch (Exception ex)
             {
@@ -330,13 +330,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<IEnumerable<object>> QueryAsync(Type type, CommandDefinition command)
+        public async Task<IEnumerable<object>> QueryAsync(Type type, SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync(type, command);
+                return await connection.QueryAsync(type, ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -349,13 +349,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<T>(sql, param, transaction, commandTimeout, commandType);
+                return await connection.QueryAsync<T>(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -406,13 +406,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(CommandDefinition command, Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn> map, string splitOn = "Id")
+        public async Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(SlimCommandDefinition command, Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn> map, string splitOn = "Id")
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(command, map, splitOn);
+                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), map, splitOn);
             }
             catch (Exception ex)
             {
@@ -444,13 +444,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(CommandDefinition command, Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn> map, string splitOn = "Id")
+        public async Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(SlimCommandDefinition command, Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn> map, string splitOn = "Id")
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(command, map, splitOn);
+                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), map, splitOn);
             }
             catch (Exception ex)
             {
@@ -482,13 +482,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<IEnumerable<object>> QueryAsync(Type type, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<IEnumerable<object>> QueryAsync(Type type, string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync(type, sql, param, transaction, commandTimeout, commandType);
+                return await connection.QueryAsync(type, sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -501,13 +501,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(CommandDefinition command, Func<TFirst, TSecond, TThird, TFourth, TFifth, TReturn> map, string splitOn = "Id")
+        public async Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(SlimCommandDefinition command, Func<TFirst, TSecond, TThird, TFourth, TFifth, TReturn> map, string splitOn = "Id")
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(command, map, splitOn);
+                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout), map, splitOn);
             }
             catch (Exception ex)
             {
@@ -520,13 +520,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<IEnumerable<T>> QueryAsync<T>(CommandDefinition command)
+        public async Task<IEnumerable<T>> QueryAsync<T>(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<T>(command);
+                return await connection.QueryAsync<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -539,13 +539,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<dynamic> QueryFirstAsync(CommandDefinition command)
+        public async Task<dynamic> QueryFirstAsync(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstAsync(command);
+                return await connection.QueryFirstAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -558,13 +558,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<T> QueryFirstAsync<T>(CommandDefinition command)
+        public async Task<T> QueryFirstAsync<T>(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstAsync<T>(command);
+                return await connection.QueryFirstAsync<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -577,13 +577,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<dynamic> QueryFirstAsync(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<dynamic> QueryFirstAsync(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstAsync(sql, param, transaction, commandTimeout, commandType);
+                return await connection.QueryFirstAsync(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -596,13 +596,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<object> QueryFirstAsync(Type type, CommandDefinition command)
+        public async Task<object> QueryFirstAsync(Type type, SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstAsync(type, command);
+                return await connection.QueryFirstAsync(type, ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -615,13 +615,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<T> QueryFirstAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<T> QueryFirstAsync<T>(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstAsync<T>(sql, param, transaction, commandTimeout, commandType);
+                return await connection.QueryFirstAsync<T>(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -634,13 +634,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<object> QueryFirstAsync(Type type, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<object> QueryFirstAsync(Type type, string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstAsync(type, sql, param, transaction, commandTimeout, commandType);
+                return await connection.QueryFirstAsync(type, sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -653,13 +653,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<dynamic> QueryFirstOrDefaultAsync(CommandDefinition command)
+        public async Task<dynamic> QueryFirstOrDefaultAsync(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstOrDefaultAsync(command);
+                return await connection.QueryFirstOrDefaultAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -672,13 +672,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<dynamic> QueryFirstOrDefaultAsync(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<dynamic> QueryFirstOrDefaultAsync(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstOrDefaultAsync(sql, param, transaction, commandTimeout, commandType);
+                return await connection.QueryFirstOrDefaultAsync(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -691,13 +691,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<T> QueryFirstOrDefaultAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<T> QueryFirstOrDefaultAsync<T>(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstOrDefaultAsync<T>(sql, param, transaction, commandTimeout, commandType);
+                return await connection.QueryFirstOrDefaultAsync<T>(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -710,13 +710,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<object> QueryFirstOrDefaultAsync(Type type, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<object> QueryFirstOrDefaultAsync(Type type, string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstOrDefaultAsync(type, sql, param, transaction, commandTimeout, commandType);
+                return await connection.QueryFirstOrDefaultAsync(type, sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -729,13 +729,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<T> QueryFirstOrDefaultAsync<T>(CommandDefinition command)
+        public async Task<T> QueryFirstOrDefaultAsync<T>(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstOrDefaultAsync<T>(command);
+                return await connection.QueryFirstOrDefaultAsync<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -748,13 +748,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<object> QueryFirstOrDefaultAsync(Type type, CommandDefinition command)
+        public async Task<object> QueryFirstOrDefaultAsync(Type type, SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryFirstOrDefaultAsync(type, command);
+                return await connection.QueryFirstOrDefaultAsync(type, ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -767,13 +767,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<SqlMapper.GridReader> QueryMultipleAsync(CommandDefinition command)
+        public async Task<SqlMapper.GridReader> QueryMultipleAsync(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryMultipleAsync(command);
+                return await connection.QueryMultipleAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -786,13 +786,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<SqlMapper.GridReader> QueryMultipleAsync(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<SqlMapper.GridReader> QueryMultipleAsync(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryMultipleAsync(sql, param, transaction, commandTimeout, commandType);
+                return await connection.QueryMultipleAsync(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -805,13 +805,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<dynamic> QuerySingleAsync(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<dynamic> QuerySingleAsync(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleAsync(sql, param, transaction, commandTimeout, commandType);
+                return await connection.QuerySingleAsync(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -824,13 +824,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<object> QuerySingleAsync(Type type, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<object> QuerySingleAsync(Type type, string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleAsync(type, sql, param, transaction, commandTimeout, commandType);
+                return await connection.QuerySingleAsync(type, sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -843,13 +843,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<T> QuerySingleAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<T> QuerySingleAsync<T>(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleAsync<T>(sql, param, transaction, commandTimeout, commandType);
+                return await connection.QuerySingleAsync<T>(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -862,13 +862,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<object> QuerySingleAsync(Type type, CommandDefinition command)
+        public async Task<object> QuerySingleAsync(Type type, SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleAsync(type, command);
+                return await connection.QuerySingleAsync(type, ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -881,13 +881,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<T> QuerySingleAsync<T>(CommandDefinition command)
+        public async Task<T> QuerySingleAsync<T>(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleAsync<T>(command);
+                return await connection.QuerySingleAsync<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -900,13 +900,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<dynamic> QuerySingleAsync(CommandDefinition command)
+        public async Task<dynamic> QuerySingleAsync(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleAsync(command);
+                return await connection.QuerySingleAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -919,13 +919,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<object> QuerySingleOrDefaultAsync(Type type, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<object> QuerySingleOrDefaultAsync(Type type, string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleOrDefaultAsync(type, sql, param, transaction, commandTimeout, commandType);
+                return await connection.QuerySingleOrDefaultAsync(type, sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -938,13 +938,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<object> QuerySingleOrDefaultAsync(Type type, CommandDefinition command)
+        public async Task<object> QuerySingleOrDefaultAsync(Type type, SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleOrDefaultAsync(type, command);
+                return await connection.QuerySingleOrDefaultAsync(type, ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -957,13 +957,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<dynamic> QuerySingleOrDefaultAsync(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<dynamic> QuerySingleOrDefaultAsync(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleOrDefaultAsync(sql, param, transaction, commandTimeout, commandType);
+                return await connection.QuerySingleOrDefaultAsync(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -976,13 +976,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<T> QuerySingleOrDefaultAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<T> QuerySingleOrDefaultAsync<T>(string sql, object param = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleOrDefaultAsync<T>(sql, param, transaction, commandTimeout, commandType);
+                return await connection.QuerySingleOrDefaultAsync<T>(sql, param, Transaction, DefaultTimeout, commandType);
             }
             catch (Exception ex)
             {
@@ -995,13 +995,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<dynamic> QuerySingleOrDefaultAsync(CommandDefinition command)
+        public async Task<dynamic> QuerySingleOrDefaultAsync(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleOrDefaultAsync(command);
+                return await connection.QuerySingleOrDefaultAsync(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
@@ -1014,13 +1014,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<T> QuerySingleOrDefaultAsync<T>(CommandDefinition command)
+        public async Task<T> QuerySingleOrDefaultAsync<T>(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QuerySingleOrDefaultAsync<T>(command);
+                return await connection.QuerySingleOrDefaultAsync<T>(ConvertSlimCommandDefinition(command, Transaction, DefaultTimeout));
             }
             catch (Exception ex)
             {
