@@ -6,6 +6,7 @@ namespace Dapper.Client
     /// <summary>
     /// <see cref="CommandDefinition"/>的简化版，
     /// 其中缺少了两个属性<see cref="CommandDefinition.Transaction"/>,<see cref="CommandDefinition.CommandTimeout"/>。
+    /// 这两个属性通过封装的DbClient统一配置。
     /// </summary>
     public class SlimCommandDefinition
     {

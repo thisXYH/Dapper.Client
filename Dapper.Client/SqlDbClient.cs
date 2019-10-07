@@ -1,6 +1,5 @@
 using System.Data;
 using System.Data.Common;
-
 #if NET461
 using System.Data.SqlClient;
 #elif NETSTANDARD2_0
@@ -9,7 +8,7 @@ using Microsoft.Data.SqlClient;
 
 namespace Dapper.Client
 {
-    public class SqlDbClient : AbstractDbClient
+    internal class SqlDbClient : AbstractDbClient
     {
         /// <summary>
         /// 使用连接字符串初始化<see cref="SqlDbClient"/>的新实例。
