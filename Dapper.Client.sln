@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Client", "Dapper.Cli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Client.Test", "Dapper.Client.Test\Dapper.Client.Test.csproj", "{1ABA45D2-9A22-45E4-9299-3F2294851685}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documents", "documents", "{79F0004C-808A-4979-9D49-8F5FD9F0F1F4}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_docs", "_docs", "{C9BEB616-FDA3-4E94-B304-C2566ED338D5}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
 		test.sql = test.sql
