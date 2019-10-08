@@ -5,14 +5,15 @@ namespace Dapper.Client.Test
     public class SqlClientTests
     {
         /// <summary>
-        /// 初始化连接对象。
+        /// sql客户端。
         /// </summary>
         private IDbClient _dbClientl;
 
         [SetUp]
         public void Setup()
         {
-            _dbClientl = DbClientFactory.CreateDbClient(DbClientType.SqlServer, "", null);
+            // 获取一个sql客户端。
+            _dbClientl = DbClientFactory.CreateDbClient(DbClientType.SqlServer, "", null, null);
         }
 
         [Test]

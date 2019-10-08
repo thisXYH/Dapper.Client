@@ -7,12 +7,12 @@ namespace Dapper.Client
     /// </summary>
     public static class DbClientFactory
     {
-        public static IDbClient CreateDbClient(DbClientType type, string connectionString, int? defaultTimeout)
+        public static IDbClient CreateDbClient(DbClientType type, string connectionString, int? defaultReadTimeout = null, int? defaultWriteTimeout = null)
         {
             switch (type)
             {
                 case DbClientType.SqlServer:
-                    return new SqlDbClient(connectionString) { DefaultTimeout = defaultTimeout };
+                    return new SqlDbClient(connectionString) { DefaultReadTimeout = defaultReadTimeout, DefaultWriteTimeout = defaultWriteTimeout };
                 case DbClientType.MySql:
                     throw new NotImplementedException();
                 default:

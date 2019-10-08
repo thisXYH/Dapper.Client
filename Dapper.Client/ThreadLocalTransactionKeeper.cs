@@ -57,18 +57,19 @@ namespace Dapper.Client
         /// </summary>
         /// <param name="dbProviderFactory"><see cref="DbProviderFactory"/>实例。</param>
         /// <param name="connectionString">初始化数据库连接的连接字符串。</param>
-        /// <param name="commandTimeout">
+        /// <param name="commandReadTimeout">
         /// 指定事务内的命令的默认执行超时时间，当方法没有单独制定超时时，套用此超时值。
         /// </param>
         public ThreadLocalTransactionKeeper(
-            DbProviderFactory dbProviderFactory, string connectionString, int? commandTimeout = null)
+            DbProviderFactory dbProviderFactory, string connectionString, int? commandReadTimeout = null, int? commandWriteTimeout = null)
         {
             ArgAssert.NotNull(dbProviderFactory, nameof(dbProviderFactory));
             ArgAssert.NotNullOrEmptyOrWhitespace(connectionString, nameof(connectionString));
 
             Factory = dbProviderFactory;
             ConnectionString = connectionString;
-            DefaultTimeout = commandTimeout;
+            DefaultReadTimeout = commandReadTimeout;
+            DefaultWriteTimeout = commandWriteTimeout;
         }
 
         /// <inheritdoc />

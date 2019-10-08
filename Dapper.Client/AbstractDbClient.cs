@@ -13,12 +13,20 @@ namespace Dapper.Client
     {
 
         /// <summary>
-        /// 获取或设置默认的命令执行超时时间。当访问数据库的方法没有指定命令执行的超时时间（即
+        /// 获取或设置默认的<strong>读取操作</strong>命令执行超时时间。当访问数据库的方法没有指定命令执行的超时时间（即
         /// <see cref="DbCommand.CommandTimeout"/>）时，使用此超时时间。各方法通常有 timeout 参数用于指定超时
         /// 时间，当值为null时即套用此属性的值作为超时时间。
         /// 单位为秒，初始值为null（不限制）。
         /// </summary>
-        public virtual int? DefaultTimeout { get; set; }
+        public virtual int? DefaultReadTimeout { get; set; }
+
+        /// <summary>
+        /// 获取或设置默认的<strong>写入操作</strong>命令执行超时时间。当访问数据库的方法没有指定命令执行的超时时间（即
+        /// <see cref="DbCommand.CommandTimeout"/>）时，使用此超时时间。各方法通常有 timeout 参数用于指定超时
+        /// 时间，当值为null时即套用此属性的值作为超时时间。
+        /// 单位为秒，初始值为null（不限制）。
+        /// </summary>
+        public virtual int? DefaultWriteTimeout { get; set; }
 
         /// <summary>
         /// 由于Dapper扩展了<see cref="IDbConnection"/>接口，
@@ -40,21 +48,38 @@ namespace Dapper.Client
 
         public virtual ITransactionKeeper CreateTransaction()
         {
-            return new ThreadLocalTransactionKeeper(Factory, ConnectionString, DefaultTimeout);
+            return new ThreadLocalTransactionKeeper(Factory, ConnectionString, DefaultReadTimeout, DefaultWriteTimeout);
         }
 
         /// <summary>
         /// 把<see cref="slimCommandDefinition"/>转成<see cref="CommandDefinition"/>。
+        /// 其中使用<see cref="DefaultReadTimeout"/>做超时时间的缺省值。
         /// </summary>
-        /// <param name="slimCommandDefinition"></param>
-        /// <returns></returns>
-        protected CommandDefinition ConvertSlimCommandDefinition(SlimCommandDefinition slimCommandDefinition)
+        protected CommandDefinition ConvertSlimCommandDefinitionWithReadTimeout(
+            SlimCommandDefinition slimCommandDefinition)
         {
             return new CommandDefinition(
                 slimCommandDefinition.CommandText,
                 slimCommandDefinition.Parameters,
                 Transaction,
-                DefaultTimeout,
+                slimCommandDefinition.CommandTimeout ?? DefaultReadTimeout,
+                slimCommandDefinition.CommandType,
+                slimCommandDefinition.Flags,
+                slimCommandDefinition.CancellationToken);
+        }
+
+        /// <summary>
+        /// 把<see cref="slimCommandDefinition"/>转成<see cref="CommandDefinition"/>。
+        /// 其中使用<see cref="DefaultWriteTimeout"/>做超时时间的缺省值。
+        /// </summary>
+        protected CommandDefinition ConvertSlimCommandDefinitionWithWriteTimeout(
+            SlimCommandDefinition slimCommandDefinition)
+        {
+            return new CommandDefinition(
+                slimCommandDefinition.CommandText,
+                slimCommandDefinition.Parameters,
+                Transaction,
+                slimCommandDefinition.CommandTimeout ?? DefaultWriteTimeout,
                 slimCommandDefinition.CommandType,
                 slimCommandDefinition.Flags,
                 slimCommandDefinition.CancellationToken);
