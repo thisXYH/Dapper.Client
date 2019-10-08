@@ -17,4 +17,8 @@
     <PackageReference Include="Microsoft.Data.SqlClient" Version="1.0.19269.1" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <Reference Include="System.Transactions" />
+  </ItemGroup>
+
 </Project>

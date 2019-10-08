@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 
 namespace Dapper.Client
 {
-    internal class SqlDbClient : AbstractDbClient
+    public class SqlDbClient : AbstractDbClient
     {
         /// <summary>
         /// 使用连接字符串初始化<see cref="SqlDbClient"/>的新实例。
