@@ -7,7 +7,11 @@
     var dbClient1 = DbClientFactory.CreateDbClient(DbClientType.SqlServer, "connectionString", null, null);
 
     // 或者 直接手动实例化 拿到 dbclient，可直接实现一个单例使用。
-    IDbClient dbClient2 = new SqlClient("connectionString"){DefaultReadTimeout = null, DefaultWriteTimeout = null}
+    IDbClient dbClient2 = new SqlClient("connectionString")
+        {
+            DefaultReadTimeout = null,
+            DefaultWriteTimeout = null
+        }
 
     /*
     拿到client之后，client提供了对Dapper接口的封装，
