@@ -23,8 +23,10 @@
     通过client.CreateTransaction()方法获取到ITransactionKeeper，其中ITransactionKeeper：IDbClient 所以也提供一样的方法可直接调用。
     注意点：
         1. using 之前如果没有 Commit|Rollback，将自动Rollback
-        2. 当tran 再次调用CreateTransaction 时，还是返回原来的 tran，但是嵌套层级+1，只能由最外层（嵌套层级为0的）的tran来Commit|Rollback
-        3. 基于第二点，建议使用函数式的变成方式来编写事务相关的方法，根据方法的业务传入ITransactionKeeper|IDbclient的参数。
+        2. 当tran 再次调用CreateTransaction 时，还是返回原来的 tran，
+        但是嵌套层级+1，只能由最外层（嵌套层级为0的）的tran来Commit|Rollback
+        3. 基于第二点，建议使用函数式的变成方式来编写事务相关的方法，
+        根据方法的业务传入ITransactionKeeper|IDbclient的参数。
     */
     using (var tran = _dbClientl.CreateTransaction())
     {
