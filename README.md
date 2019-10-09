@@ -20,7 +20,8 @@
 
     /*
     事务的使用方式：
-    通过client.CreateTransaction()方法获取到ITransactionKeeper，其中ITransactionKeeper：IDbClient 所以也提供一样的方法可直接调用。
+    通过client.CreateTransaction()方法获取到ITransactionKeeper，
+    其中ITransactionKeeper：IDbClient 所以也提供一样的方法可直接调用。
     注意点：
         1. using 之前如果没有 Commit|Rollback，将自动Rollback
         2. 当tran 再次调用CreateTransaction 时，还是返回原来的 tran，
