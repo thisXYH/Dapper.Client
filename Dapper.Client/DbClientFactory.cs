@@ -14,7 +14,9 @@ namespace Dapper.Client
                 case DbClientType.SqlServer:
                     return new SqlDbClient(connectionString) { DefaultReadTimeout = defaultReadTimeout, DefaultWriteTimeout = defaultWriteTimeout };
                 case DbClientType.MySql:
-                    throw new NotImplementedException();
+                    return new MySqlDbClient(connectionString) { DefaultReadTimeout = defaultReadTimeout, DefaultWriteTimeout = defaultWriteTimeout };
+                case DbClientType.Oracle:
+                    return new OracleDbClient(connectionString) { DefaultReadTimeout = defaultReadTimeout, DefaultWriteTimeout = defaultWriteTimeout };
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
@@ -28,6 +30,8 @@ namespace Dapper.Client
     {
         SqlServer = 0,
 
-        MySql = 1
+        MySql = 1,
+
+        Oracle = 2
     }
 }

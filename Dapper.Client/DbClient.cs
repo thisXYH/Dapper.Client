@@ -1,5 +1,7 @@
 using System.Data;
 using System.Data.Common;
+using MySql.Data.MySqlClient;
+using Oracle.ManagedDataAccess.Client;
 #if NET461
 using System.Data.SqlClient;
 #elif NETSTANDARD2_0
@@ -34,5 +36,31 @@ namespace Dapper.Client
         /// 获取当前实例所使用的<see cref="DbProviderFactory"/>实例。
         /// </summary>
         protected override DbProviderFactory Factory => SqlClientFactory.Instance;
+    }
+
+    public class OracleDbClient : AbstractDbClient
+    {
+        public OracleDbClient(string connectionString)
+        {
+            ArgAssert.NotNullOrEmptyOrWhitespace(connectionString, nameof(connectionString));
+            ConnectionString = connectionString;
+        }
+
+        protected override IDbTransaction Transaction { get; } = null;
+        public override string ConnectionString { get; }
+        protected override DbProviderFactory Factory { get; } = OracleClientFactory.Instance;
+    }
+
+    public class MySqlDbClient : AbstractDbClient
+    {
+        public MySqlDbClient(string connectionString)
+        {
+            ArgAssert.NotNullOrEmptyOrWhitespace(connectionString, nameof(connectionString));
+            ConnectionString = connectionString;
+        }
+
+        protected override IDbTransaction Transaction { get; } = null;
+        public override string ConnectionString { get; }
+        protected override DbProviderFactory Factory { get; } = MySqlClientFactory.Instance;
     }
 }
