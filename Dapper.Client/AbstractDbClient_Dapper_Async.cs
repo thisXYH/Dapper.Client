@@ -47,63 +47,6 @@ namespace Dapper.Client
             }
         }
 
-
-        public async Task<IDataReader> ExecuteReaderAsync(SlimCommandDefinition command, CommandBehavior commandBehavior)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteReaderAsync(ConvertSlimCommandDefinitionWithWriteTimeout(command), commandBehavior);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-        public async Task<IDataReader> ExecuteReaderAsync(SlimCommandDefinition command)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteReaderAsync(ConvertSlimCommandDefinitionWithWriteTimeout(command));
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-        public async Task<IDataReader> ExecuteReaderAsync(string sql, object param = null, int? commandTimeout = null,
-            CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteReaderAsync(sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
         public async Task<object> ExecuteScalarAsync(SlimCommandDefinition command)
         {
             DbConnection connection = null;

@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace Dapper.Client
 {
@@ -36,6 +37,9 @@ namespace Dapper.Client
         // ITransactionKeeper 接口继承了 IDbClient，所以具有 CreateTrasaction 方法。
         // 刚创建的事务嵌套层级为0，事务内再次创建事务时+1，并返回（复用）当前实例。
         private int _embeddedLevel;
+
+        // 事务关联的连接是否已经打开过，如果打开过了就不重复打开， 默认false。
+        private bool _connectionOpened;
 
         /// <summary>
         /// 当前事务的 DbTransaction 实例。
@@ -159,10 +163,33 @@ namespace Dapper.Client
 
             _connection = base.CreateConnection();
 
-            // 开启事务。
-            _transaction = _connection.BeginTransaction();
-
             return _connection;
+        }
+
+        protected override void OpenConnection(DbConnection connection)
+        {
+            CheckStatus();
+
+            if (_connectionOpened) return;
+
+            _connectionOpened = true;
+            base.OpenConnection(connection);
+
+            //开启事务
+            _transaction = connection.BeginTransaction();
+        }
+
+        protected override async Task OpenConnectionAsync(DbConnection connection)
+        {
+            CheckStatus();
+
+            if (_connectionOpened) return;
+
+            _connectionOpened = true;
+            await base.OpenConnectionAsync(connection);
+
+            //开启事务
+            _transaction = connection.BeginTransaction();
         }
 
         /// <inheritdoc cref="AbstractDbClient.CloseConnection" />

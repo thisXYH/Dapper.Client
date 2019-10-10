@@ -46,64 +46,6 @@ namespace Dapper.Client
             }
         }
 
-        public IDataReader ExecuteReader(SlimCommandDefinition command, CommandBehavior commandBehavior)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.ExecuteReader(ConvertSlimCommandDefinitionWithWriteTimeout(command), commandBehavior);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        public IDataReader ExecuteReader(SlimCommandDefinition command)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.ExecuteReader(ConvertSlimCommandDefinitionWithWriteTimeout(command));
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        public IDataReader ExecuteReader(
-            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.ExecuteReader(sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
         public object ExecuteScalar(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             DbConnection connection = null;

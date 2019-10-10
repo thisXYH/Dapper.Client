@@ -13,9 +13,10 @@ namespace Dapper.Client
     {
         Task<int> ExecuteAsync(SlimCommandDefinition command);
         Task<int> ExecuteAsync(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
-        Task<IDataReader> ExecuteReaderAsync(SlimCommandDefinition command, CommandBehavior commandBehavior);
-        Task<IDataReader> ExecuteReaderAsync(SlimCommandDefinition command);
-        Task<IDataReader> ExecuteReaderAsync(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+        // 针对 ExecuteReader 封装不太适合，因为IDataReader和DbConnection有点耦合，又因为Dapper已经有提供匿名类型类型，所以就不封装这部分了
+        //Task<IDataReader> ExecuteReaderAsync(SlimCommandDefinition command, CommandBehavior commandBehavior);
+        //Task<IDataReader> ExecuteReaderAsync(SlimCommandDefinition command);
+        //Task<IDataReader> ExecuteReaderAsync(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
         Task<object> ExecuteScalarAsync(SlimCommandDefinition command);
         Task<T> ExecuteScalarAsync<T>(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
         Task<object> ExecuteScalarAsync(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);

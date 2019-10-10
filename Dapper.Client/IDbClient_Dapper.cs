@@ -12,9 +12,10 @@ namespace Dapper.Client
     {
         int Execute(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
         int Execute(SlimCommandDefinition command);
-        IDataReader ExecuteReader(SlimCommandDefinition command, CommandBehavior commandBehavior);
-        IDataReader ExecuteReader(SlimCommandDefinition command);
-        IDataReader ExecuteReader(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+        // 针对 ExecuteReader 封装不太适合，因为IDataReader和DbConnection有点耦合，又因为Dapper已经有提供匿名类型类型，所以就不封装这部分了
+        //IDataReader ExecuteReader(SlimCommandDefinition command, CommandBehavior commandBehavior);
+        //IDataReader ExecuteReader(SlimCommandDefinition command);
+        //IDataReader ExecuteReader(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
         object ExecuteScalar(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
         T ExecuteScalar<T>(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
         T ExecuteScalar<T>(SlimCommandDefinition command);
