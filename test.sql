@@ -30,8 +30,8 @@ CREATE TABLE Person
     Age INT NOT NULL,
     -- specify more columns here
     Birthday DATETIME NULL,
-    height FLOAT NULL,
-    [weight] FLOAT NULL,
+    Height FLOAT NULL,
+    [Weight] FLOAT NULL,
     InsertTime DATETIME NOT NULL DEFAULT getdate()
 );
 GO
