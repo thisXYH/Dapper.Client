@@ -20,8 +20,11 @@ namespace Dapper.Client.Test
         public void Test1()
         {
             const string sql =
-                "INSERT Person(Name,Age,Birthday,Height,Weight,InsertTime) VALUES(N'',0,GETDATE(),0.0,0.0,GETDATE())";
-            _sqlDbClient.Execute("");
+                "INSERT Person(Name,Age,Birthday,Height,Weight,InsertTime) VALUES(@Name,@Age,@Birthday,@Height,@Weight,GETDATE())";
+            _sqlDbClient.Execute(sql, new
+            {
+                Name = 1
+            });
             Assert.Pass();
         }
     }
