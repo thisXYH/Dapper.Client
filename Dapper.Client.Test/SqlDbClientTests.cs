@@ -2,18 +2,18 @@ using NUnit.Framework;
 
 namespace Dapper.Client.Test
 {
-    public class SqlClientTests
+    public class SqlDbClientTests
     {
         /// <summary>
         /// sql客户端。
         /// </summary>
-        private IDbClient _dbClientl;
+        private IDbClient _sqlDbClient;
 
         [SetUp]
         public void Setup()
         {
             // 获取一个sql客户端。
-            _dbClientl = DbClientFactory.CreateDbClient(DbClientType.SqlServer, "", null, null);
+            _sqlDbClient = DbClientFactory.CreateDbClient(DbClientType.SqlServer, "", null, null);
         }
 
         [Test]
