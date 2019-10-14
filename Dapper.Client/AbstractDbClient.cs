@@ -13,25 +13,23 @@ namespace Dapper.Client
     {
 
         /// <summary>
-        /// 获取或设置默认的<strong>读取操作</strong>命令执行超时时间。当访问数据库的方法没有指定命令执行的超时时间（即
-        /// <see cref="DbCommand.CommandTimeout"/>）时，使用此超时时间。各方法通常有 timeout 参数用于指定超时
-        /// 时间，当值为null时即套用此属性的值作为超时时间。
-        /// 单位为秒，初始值为null（不限制）。
+        /// 获取或设置默认的<strong>读取操作</strong>命令执行超时时间（秒）。
+        /// 当访问数据库的方法没有指定命令执行的超时时间（即<see cref="DbCommand.CommandTimeout"/>）时，使用此超时时间。
+        /// 各方法通常有 commandTimeout 参数用于指定超时时间，当值为null时即套用此属性的值作为超时时间。
+        /// 初始值为null（不限制）。
         /// </summary>
         public virtual int? DefaultReadTimeout { get; set; }
 
         /// <summary>
-        /// 获取或设置默认的<strong>写入操作</strong>命令执行超时时间。当访问数据库的方法没有指定命令执行的超时时间（即
-        /// <see cref="DbCommand.CommandTimeout"/>）时，使用此超时时间。各方法通常有 timeout 参数用于指定超时
-        /// 时间，当值为null时即套用此属性的值作为超时时间。
-        /// 单位为秒，初始值为null（不限制）。
+        /// 获取或设置默认的<strong>写入操作</strong>命令执行超时时间（秒）。
+        /// 当访问数据库的方法没有指定命令执行的超时时间（即<see cref="DbCommand.CommandTimeout"/>）时，使用此超时时间。
+        /// 各方法通常有 commandTimeout 参数用于指定超时时间，当值为null时即套用此属性的值作为超时时间。
+        /// 初始值为null（不限制）。
         /// </summary>
         public virtual int? DefaultWriteTimeout { get; set; }
 
         /// <summary>
-        /// 由于Dapper扩展了<see cref="IDbConnection"/>接口，
-        /// 扩展方法参数都包含了Transaction，所以在AbstractDbClient中添加该字段，
-        /// 理论上当未调用过<see cref="CreateTransaction"/>时都为null。
+        /// 获取当前实例所使用的事务对象。
         /// </summary>
         protected abstract IDbTransaction Transaction { get; }
 
@@ -46,13 +44,17 @@ namespace Dapper.Client
         /// <value></value>
         protected abstract DbProviderFactory Factory { get; }
 
+        /// <summary>
+        /// 创建一个事务持有者实例，通过该实例执行的命令都在一个事务中。
+        /// </summary>
+        /// <returns></returns>
         public virtual ITransactionKeeper CreateTransaction()
         {
             return new ThreadLocalTransactionKeeper(Factory, ConnectionString, DefaultReadTimeout, DefaultWriteTimeout);
         }
 
         /// <summary>
-        /// 把<see cref="slimCommandDefinition"/>转成<see cref="CommandDefinition"/>。
+        /// 把<see cref="SlimCommandDefinition"/>转成<see cref="CommandDefinition"/>。
         /// 其中使用<see cref="DefaultReadTimeout"/>做超时时间的缺省值。
         /// </summary>
         protected CommandDefinition ConvertSlimCommandDefinitionWithReadTimeout(
@@ -69,7 +71,7 @@ namespace Dapper.Client
         }
 
         /// <summary>
-        /// 把<see cref="slimCommandDefinition"/>转成<see cref="CommandDefinition"/>。
+        /// 把<see cref="SlimCommandDefinition"/>转成<see cref="CommandDefinition"/>。
         /// 其中使用<see cref="DefaultWriteTimeout"/>做超时时间的缺省值。
         /// </summary>
         protected CommandDefinition ConvertSlimCommandDefinitionWithWriteTimeout(
@@ -110,27 +112,6 @@ namespace Dapper.Client
         }
 
         /// <summary>
-        /// 创建并打开一个连接对象。
-        /// </summary>
-        private DbConnection CreateAndOpenConnection()
-        {
-            var connection = CreateConnection();
-            OpenConnection(connection);
-
-            return connection;
-        }
-
-        /// <summary>
-        /// 关闭连接。
-        /// </summary>
-        /// <param name="connection"></param>
-        protected virtual void CloseConnection(DbConnection connection)
-        {
-            if (connection.State != ConnectionState.Closed)
-                connection.Close();
-        }
-
-        /// <summary>
         /// 打开连接。
         /// </summary>
         /// <param name="connection">连接对象。</param>
@@ -143,11 +124,32 @@ namespace Dapper.Client
         /// <summary>
         /// 创建并打开一个连接对象。
         /// </summary>
+        private DbConnection CreateAndOpenConnection()
+        {
+            var connection = CreateConnection();
+            OpenConnection(connection);
+
+            return connection;
+        }
+
+        /// <summary>
+        /// 创建并打开一个连接对象。
+        /// </summary>
         private async Task<DbConnection> CreateAndOpenConnectionAsync()
         {
             var connection = CreateConnection();
             await OpenConnectionAsync(connection);
             return connection;
+        }
+
+        /// <summary>
+        /// 关闭连接。
+        /// </summary>
+        /// <param name="connection"></param>
+        protected virtual void CloseConnection(DbConnection connection)
+        {
+            if (connection.State != ConnectionState.Closed)
+                connection.Close();
         }
     }
 }

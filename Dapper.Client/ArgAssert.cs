@@ -4,7 +4,10 @@ using System.Linq;
 
 namespace Dapper.Client
 {
-    public static class ArgAssert
+    /// <summary>
+    /// 断言。
+    /// </summary>
+    internal static class ArgAssert
     {
         /// <summary>
         /// 断言参数非空引用。

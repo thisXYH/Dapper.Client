@@ -2,6 +2,7 @@ using System.Data;
 using System.Data.Common;
 using MySql.Data.MySqlClient;
 using Oracle.ManagedDataAccess.Client;
+
 #if NET461
 using System.Data.SqlClient;
 #elif NETSTANDARD2_0
@@ -10,6 +11,9 @@ using Microsoft.Data.SqlClient;
 
 namespace Dapper.Client
 {
+    /// <summary>
+    /// MSSQL Client.
+    /// </summary>
     public class SqlDbClient : AbstractDbClient
     {
         /// <summary>
@@ -23,7 +27,7 @@ namespace Dapper.Client
         }
 
         /// <summary>
-        /// 事务对象，默认通过客户端直接调用的时候为null。
+        /// 事务对象，直接通过客户端直接调用的时候为null。
         /// </summary>
         protected override IDbTransaction Transaction => null;
 

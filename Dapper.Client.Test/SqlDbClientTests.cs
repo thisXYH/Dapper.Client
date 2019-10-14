@@ -106,5 +106,31 @@ namespace Dapper.Client.Test
             Assert.IsNotNull(person2);
             Assert.AreEqual(150, person2.Weight);
         }
+
+        [Test]
+        public void GridReader()
+        {
+            const string sql =
+                "INSERT Person(Name,Age,Birthday,Height,Weight,InsertTime) output inserted.Id VALUES (@Name,@Age,@Birthday,@Height,@Weight,GETDATE())";
+            _sqlDbClient.ExecuteScalar<int>(sql, new
+            {
+                Name = "极致啊",
+                Age = 24,
+                Birthday = (DateTime?)null,
+                Height = 183.5,
+                Weight = (float?)null
+            });
+
+            //这里的连接关闭由外界控制。
+            var grid = _sqlDbClient.QueryMultiple(new SlimCommandDefinition(
+                "select * from person;select * from person;"),out var ccp);
+
+            var person1 = grid.Read<Person>();
+            var person2 = grid.Read<Person>();
+
+            ccp.Done();
+
+            Assert.IsTrue(grid.IsConsumed);
+        }
     }
 }

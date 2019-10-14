@@ -6,9 +6,6 @@ using static Dapper.SqlMapper;
 
 namespace Dapper.Client
 {
-    /// <summary>
-    /// 定义数据库访问客户端。
-    /// </summary>
     public partial interface IDbClient
     {
         Task<int> ExecuteAsync(SlimCommandDefinition command);

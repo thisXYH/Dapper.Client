@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Threading.Tasks;
 
 namespace Dapper.Client
 {
@@ -525,46 +524,39 @@ namespace Dapper.Client
 
 
 
-        public SqlMapper.GridReader QueryMultiple(string sql, object param = null, int? commandTimeout = null,
+        public SqlMapper.GridReader QueryMultiple(string sql, out ConnectionCloseOperate ccp, object param = null,
+            int? commandTimeout = null,
             CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
+                //暴露一个关闭操作给外部，通过外部关闭当前连接。
+                ccp = new ConnectionCloseOperate(connection);
                 return connection.QueryMultiple(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
         }
 
-        public SqlMapper.GridReader QueryMultiple(SlimCommandDefinition command)
+        public SqlMapper.GridReader QueryMultiple(SlimCommandDefinition command, out ConnectionCloseOperate ccp)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
+                //暴露一个关闭操作给外部，通过外部关闭当前连接。
+                ccp = new ConnectionCloseOperate(connection);
                 return connection.QueryMultiple(ConvertSlimCommandDefinitionWithReadTimeout(command));
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
         }
-
-
 
         public object QuerySingle(Type type, string sql, object param = null, int? commandTimeout = null,
             CommandType? commandType = null)
