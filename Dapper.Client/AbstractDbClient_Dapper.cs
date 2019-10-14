@@ -878,22 +878,19 @@ namespace Dapper.Client
         ///  执行一个多结果集的查询语句, 并通过返回值访问每个结果集。
         /// <strong>该方法需要手动关闭连接对象。</strong>
         /// </summary>
-        /// <param name="ccp">连接对象关闭操作。</param>
         /// <param name="sql">执行语句。</param>
         /// <param name="param">执行参数。</param>
         /// <param name="commandTimeout">超时时间（秒）。</param>
         /// <param name="commandType">命令类型。</param>
-        public SqlMapper.GridReader QueryMultiple(out ConnectionCloseOperate ccp, string sql, object param = null,
-            int? commandTimeout = null,
-            CommandType? commandType = null)
+        public GridReaderWapper QueryMultiple(
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                //暴露一个关闭操作给外部，通过外部关闭当前连接。
-                ccp = new ConnectionCloseOperate(connection);
-                return connection.QueryMultiple(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
+                return new GridReaderWapper(
+                    connection.QueryMultiple(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType), connection);
             }
             catch (Exception ex)
             {
@@ -905,17 +902,14 @@ namespace Dapper.Client
         /// 执行一个多结果集的查询语句, 并通过返回值访问每个结果集。
         /// <strong>该方法需要手动关闭连接对象。</strong>
         /// </summary>
-        /// <param name="ccp">连接对象关闭操作。</param>
         /// <param name="command">命令定义。</param>
-        public SqlMapper.GridReader QueryMultiple(out ConnectionCloseOperate ccp, SlimCommandDefinition command)
+        public GridReaderWapper QueryMultiple(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                //暴露一个关闭操作给外部，通过外部关闭当前连接。
-                ccp = new ConnectionCloseOperate(connection);
-                return connection.QueryMultiple(ConvertSlimCommandDefinitionWithReadTimeout(command));
+                return new GridReaderWapper(connection.QueryMultiple(ConvertSlimCommandDefinitionWithReadTimeout(command)), connection);
             }
             catch (Exception ex)
             {

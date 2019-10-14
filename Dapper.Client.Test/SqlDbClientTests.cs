@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace Dapper.Client.Test
@@ -108,7 +109,7 @@ namespace Dapper.Client.Test
         }
 
         [Test]
-        public void GridReader()
+        public async Task GridReaderWapper()
         {
             const string sql =
                 "INSERT Person(Name,Age,Birthday,Height,Weight,InsertTime) output inserted.Id VALUES (@Name,@Age,@Birthday,@Height,@Weight,GETDATE())";
@@ -121,18 +122,42 @@ namespace Dapper.Client.Test
                 Weight = (float?)null
             });
 
-            //这里的连接关闭由外界控制。
-            var grid = _sqlDbClient.QueryMultiple(out var ccp, new SlimCommandDefinition(
-                "select * from person;select * from person;"));
+            // 当读取到最后一个结果集的时候 触发连接关闭代码。
+            var grid = _sqlDbClient.QueryMultiple(new SlimCommandDefinition("select * from person;select * from person;"));
 
-            var person1 = grid.Read<Person>();
+            var person1 = await grid.ReadAsync<Person>();
             var person2 = grid.Read<Person>();
 
-            grid.Command.Connection.
-
-            ccp.Done();
+            Assert.IsNull(grid.Connection);
 
             Assert.IsTrue(grid.IsConsumed);
+        }
+
+        [Test]
+        public async Task GridReaderWapperUsing()
+        {
+            const string sql =
+                "INSERT Person(Name,Age,Birthday,Height,Weight,InsertTime) output inserted.Id VALUES (@Name,@Age,@Birthday,@Height,@Weight,GETDATE())";
+            _sqlDbClient.ExecuteScalar<int>(sql, new
+            {
+                Name = "极致啊",
+                Age = 24,
+                Birthday = (DateTime?)null,
+                Height = 183.5,
+                Weight = (float?)null
+            });
+
+            // 当没有读取到最后一个结果集的时候，通过Dispose 触发连接关闭代码。
+            GridReaderWapper grid;
+            using (grid = _sqlDbClient.QueryMultiple(new SlimCommandDefinition("select * from person;select * from person;")))
+            {
+                var person1 = await grid.ReadAsync<Person>();
+            }
+
+            Assert.IsNull(grid.Connection);
+
+            // 不是最后一个结果集。
+            Assert.IsFalse(grid.IsConsumed);
         }
     }
 }

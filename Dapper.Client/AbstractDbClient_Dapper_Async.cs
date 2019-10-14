@@ -768,13 +768,13 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<SqlMapper.GridReader> QueryMultipleAsync(SlimCommandDefinition command)
+        public async Task<GridReaderWapper> QueryMultipleAsync(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryMultipleAsync(ConvertSlimCommandDefinitionWithReadTimeout(command));
+                return new GridReaderWapper(await connection.QueryMultipleAsync(ConvertSlimCommandDefinitionWithReadTimeout(command)), connection);
             }
             catch (Exception ex)
             {
@@ -787,14 +787,14 @@ namespace Dapper.Client
             }
         }
 
-        public async Task<SqlMapper.GridReader> QueryMultipleAsync(
+        public async Task<GridReaderWapper> QueryMultipleAsync(
             string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryMultipleAsync(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
+                return new GridReaderWapper(await connection.QueryMultipleAsync(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType), connection);
             }
             catch (Exception ex)
             {

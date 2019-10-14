@@ -500,8 +500,8 @@ namespace Dapper.Client
         Task<object> QueryFirstOrDefaultAsync(Type type, SlimCommandDefinition command);
 
         
-        Task<SqlMapper.GridReader> QueryMultipleAsync(SlimCommandDefinition command);
-        Task<SqlMapper.GridReader> QueryMultipleAsync(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+        Task<GridReaderWapper> QueryMultipleAsync(SlimCommandDefinition command);
+        Task<GridReaderWapper> QueryMultipleAsync(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
         Task<dynamic> QuerySingleAsync(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
         Task<object> QuerySingleAsync(Type type, string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
         Task<T> QuerySingleAsync<T>(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
