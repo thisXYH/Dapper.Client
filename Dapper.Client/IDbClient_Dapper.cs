@@ -24,6 +24,31 @@ namespace Dapper.Client
         int Execute(SlimCommandDefinition command);
 
         /// <summary>
+        /// 执行参数化sql，返回<see cref="System.Data.IDataReader" />.
+        /// </summary>
+        /// <param name="ccp">连接对象关闭操作。</param>
+        /// <param name="command">命令定义。</param>
+        /// <param name="commandBehavior">命令行为。</param>
+        IDataReader ExecuteReader(out ConnectionCloseOperate ccp, SlimCommandDefinition command, CommandBehavior commandBehavior);
+
+        /// <summary>
+        /// 执行参数化sql，返回<see cref="System.Data.IDataReader" />.
+        /// </summary>
+        /// <param name="ccp">连接对象关闭操作。</param>
+        /// <param name="command">命令定义。</param>
+        IDataReader ExecuteReader(out ConnectionCloseOperate ccp, SlimCommandDefinition command);
+
+        /// <summary>
+        /// 执行参数化sql，返回<see cref="System.Data.IDataReader" />.
+        /// </summary>
+        /// <param name="ccp">连接对象关闭操作。</param>
+        /// <param name="sql">执行语句。</param>
+        /// <param name="param">执行参数。</param>
+        /// <param name="commandTimeout">超时时间（秒）。</param>
+        /// <param name="commandType">命令类型。</param>
+        IDataReader ExecuteReader(out ConnectionCloseOperate ccp, string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+
+        /// <summary>
         /// 执行选择单个值的参数化sql。
         /// </summary>
         /// <param name="sql">执行语句。</param>
@@ -134,7 +159,7 @@ namespace Dapper.Client
         /// <typeparam name="TFourth">映射类型4。</typeparam>
         /// <typeparam name="TFifth">映射类型5。</typeparam>
         /// <typeparam name="TSixth">映射类型6。</typeparam>
-        /// <typeparam name="TReturn"></typeparam>
+        /// <typeparam name="TReturn">返回值类型。</typeparam>
         /// <param name="sql">执行语句。</param>
         /// <param name="map">把映射类型置换成返回类型的委托。</param>
         /// <param name="param">执行参数。</param>
@@ -150,7 +175,7 @@ namespace Dapper.Client
         /// </summary>
         /// <typeparam name="TFirst">映射类型1。</typeparam>
         /// <typeparam name="TSecond">映射类型2。</typeparam>
-        /// <typeparam name="TReturn"></typeparam>
+        /// <typeparam name="TReturn">返回值类型。</typeparam>
         /// <param name="sql">执行语句。</param>
         /// <param name="map">把映射类型置换成返回类型的委托。</param>
         /// <param name="param">执行参数。</param>
@@ -169,7 +194,7 @@ namespace Dapper.Client
         /// <typeparam name="TThird">映射类型3。</typeparam>
         /// <typeparam name="TFourth">映射类型4。</typeparam>
         /// <typeparam name="TFifth">映射类型5。</typeparam>
-        /// <typeparam name="TReturn"></typeparam>
+        /// <typeparam name="TReturn">返回值类型。</typeparam>
         /// <param name="sql">执行语句。</param>
         /// <param name="map">把映射类型置换成返回类型的委托。</param>
         /// <param name="param">执行参数。</param>
@@ -187,7 +212,7 @@ namespace Dapper.Client
         /// <typeparam name="TSecond">映射类型2。</typeparam>
         /// <typeparam name="TThird">映射类型3。</typeparam>
         /// <typeparam name="TFourth">映射类型4。</typeparam>
-        /// <typeparam name="TReturn"></typeparam>
+        /// <typeparam name="TReturn">返回值类型。</typeparam>
         /// <param name="sql">执行语句。</param>
         /// <param name="map">把映射类型置换成返回类型的委托。</param>
         /// <param name="param">执行参数。</param>
@@ -215,7 +240,7 @@ namespace Dapper.Client
         /// <typeparam name="TFirst">映射类型1。</typeparam>
         /// <typeparam name="TSecond">映射类型2。</typeparam>
         /// <typeparam name="TThird">映射类型3。</typeparam>
-        /// <typeparam name="TReturn"></typeparam>
+        /// <typeparam name="TReturn">返回值类型。</typeparam>
         /// <param name="sql">执行语句。</param>
         /// <param name="map">把映射类型置换成返回类型的委托。</param>
         /// <param name="param">执行参数。</param>
@@ -337,20 +362,22 @@ namespace Dapper.Client
 
         /// <summary>
         ///  执行一个多结果集的查询语句, 并通过返回值访问每个结果集。
+        /// <strong>该方法需要手动关闭连接对象。</strong>
         /// </summary>
-        /// <param name="sql">执行语句。</param>
         /// <param name="ccp">连接对象关闭操作。</param>
+        /// <param name="sql">执行语句。</param>
         /// <param name="param">执行参数。</param>
         /// <param name="commandTimeout">超时时间（秒）。</param>
         /// <param name="commandType">命令类型。</param>
-        SqlMapper.GridReader QueryMultiple(string sql, out ConnectionCloseOperate ccp, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+        SqlMapper.GridReader QueryMultiple(out ConnectionCloseOperate ccp, string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
 
         /// <summary>
         /// 执行一个多结果集的查询语句, 并通过返回值访问每个结果集。
+        /// <strong>该方法需要手动关闭连接对象。</strong>
         /// </summary>
-        /// <param name="command">命令定义。</param>
         /// <param name="ccp">连接对象关闭操作。</param>
-        SqlMapper.GridReader QueryMultiple(SlimCommandDefinition command, out ConnectionCloseOperate ccp);
+        /// <param name="command">命令定义。</param>
+        SqlMapper.GridReader QueryMultiple(out ConnectionCloseOperate ccp, SlimCommandDefinition command);
 
         /// <summary>
         /// 执行一个单结果集的查询语句, 取结果集的第一行。

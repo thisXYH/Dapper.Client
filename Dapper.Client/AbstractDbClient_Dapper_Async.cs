@@ -47,6 +47,22 @@ namespace Dapper.Client
             }
         }
 
+        public Task<IDataReader> ExecuteReaderAsync(out ConnectionCloseOperate ccp, SlimCommandDefinition command, CommandBehavior commandBehavior)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IDataReader> ExecuteReaderAsync(out ConnectionCloseOperate ccp, SlimCommandDefinition command)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IDataReader> ExecuteReaderAsync(out ConnectionCloseOperate ccp, string sql, object param = null, int? commandTimeout = null,
+            CommandType? commandType = null)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<object> ExecuteScalarAsync(SlimCommandDefinition command)
         {
             DbConnection connection = null;

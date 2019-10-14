@@ -122,11 +122,13 @@ namespace Dapper.Client.Test
             });
 
             //这里的连接关闭由外界控制。
-            var grid = _sqlDbClient.QueryMultiple(new SlimCommandDefinition(
-                "select * from person;select * from person;"),out var ccp);
+            var grid = _sqlDbClient.QueryMultiple(out var ccp, new SlimCommandDefinition(
+                "select * from person;select * from person;"));
 
             var person1 = grid.Read<Person>();
             var person2 = grid.Read<Person>();
+
+            grid.Command.Connection.
 
             ccp.Done();
 
