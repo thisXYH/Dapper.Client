@@ -5,8 +5,15 @@ namespace Dapper.Client
 {
     public class DataReaderWrapper : IDataReader
     {
-        private IDataReader _dataReader;
+        private readonly IDataReader _dataReader;
         private IDbConnection _connection;
+
+        /// <summary>
+        /// 连接对象是否已经关闭, 默认值false。
+        /// </summary>
+        private bool _isConnectionClosed;
+
+        public bool IsConnectionClosed => _isConnectionClosed;
 
         internal DataReaderWrapper(IDataReader reader, IDbConnection connection)
         {
@@ -22,17 +29,18 @@ namespace Dapper.Client
         /// </summary>
         private void CloseConnection()
         {
-            if (_connection != null && _connection.State != ConnectionState.Closed)
+            if (!_isConnectionClosed && _connection != null && _connection.State != ConnectionState.Closed)
             {
                 _connection.Close();
                 _connection = null;
+
+                _isConnectionClosed = true;
             }
         }
 
         public void Dispose()
         {
             _dataReader.Dispose();
-            _dataReader = null;
 
             CloseConnection();
         }

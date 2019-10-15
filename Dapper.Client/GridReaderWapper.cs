@@ -14,8 +14,18 @@ namespace Dapper.Client
         private readonly GridReader _gridReader;
         private IDbConnection _connection;
 
+        /// <summary>
+        /// 连接对象是否已经关闭, 默认值false。
+        /// </summary>
+        private bool _isConnectionClosed;
+
+        public bool IsConnectionClosed => _isConnectionClosed;
+
         internal GridReaderWapper(GridReader gridReader, IDbConnection connection)
         {
+            ArgAssert.NotNull(gridReader, nameof(gridReader));
+            ArgAssert.NotNull(connection, nameof(connection));
+
             _gridReader = gridReader;
             _connection = connection;
         }
@@ -27,8 +37,6 @@ namespace Dapper.Client
         }
 
         public bool IsConsumed => _gridReader.IsConsumed;
-
-        public IDbConnection Connection => _connection;
 
         public void Dispose()
         {
@@ -53,10 +61,12 @@ namespace Dapper.Client
         /// </summary>
         private void CloseConnection()
         {
-            if (_connection != null && _connection.State != ConnectionState.Closed)
+            if (!_isConnectionClosed && _connection != null && _connection.State != ConnectionState.Closed)
             {
                 _connection.Close();
                 _connection = null;
+
+                _isConnectionClosed = true;
             }
         }
 
