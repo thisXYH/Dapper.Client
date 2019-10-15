@@ -230,7 +230,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TReturn>(ConvertSlimCommandDefinitionWithReadTimeout(command), map, splitOn);
+                return await connection.QueryAsync(ConvertSlimCommandDefinitionWithReadTimeout(command), map, splitOn);
             }
             finally
             {
@@ -261,7 +261,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TReturn>(
+                return await connection.QueryAsync(
                     sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
             }
             finally
@@ -339,7 +339,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TReturn>(
+                return await connection.QueryAsync(
                     sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
             }
             finally
@@ -367,7 +367,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TReturn>(ConvertSlimCommandDefinitionWithReadTimeout(command), map, splitOn);
+                return await connection.QueryAsync(ConvertSlimCommandDefinitionWithReadTimeout(command), map, splitOn);
             }
             finally
             {
@@ -400,7 +400,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TReturn>(
+                return await connection.QueryAsync(
                     sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
             }
             finally
@@ -428,7 +428,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TReturn>(ConvertSlimCommandDefinitionWithReadTimeout(command), map, splitOn);
+                return await connection.QueryAsync(ConvertSlimCommandDefinitionWithReadTimeout(command), map, splitOn);
             }
             finally
             {
@@ -514,7 +514,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
+                return await connection.QueryAsync(
                     sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
             }
             finally
@@ -550,7 +550,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
+                return await connection.QueryAsync(
                     sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
             }
             finally
@@ -580,7 +580,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
+                return await connection.QueryAsync(
                     ConvertSlimCommandDefinitionWithReadTimeout(command), map, splitOn);
             }
             finally
@@ -619,7 +619,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
+                return await connection.QueryAsync(
                     sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
             }
             finally
@@ -651,7 +651,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
+                return await connection.QueryAsync(
                     ConvertSlimCommandDefinitionWithReadTimeout(command), map, splitOn);
             }
             finally
@@ -682,7 +682,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TReturn>(sql, types, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
+                return await connection.QueryAsync(sql, types, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
             }
             finally
             {
@@ -739,7 +739,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
+                return await connection.QueryAsync(
                     ConvertSlimCommandDefinitionWithReadTimeout(command), map, splitOn);
             }
             finally
