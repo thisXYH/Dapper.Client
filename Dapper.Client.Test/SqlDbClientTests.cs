@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -152,6 +153,8 @@ namespace Dapper.Client.Test
             using (grid = _sqlDbClient.QueryMultiple(new SlimCommandDefinition("select * from person;select * from person;")))
             {
                 var person1 = await grid.ReadAsync<Person>();
+
+                // 还有一个结果集没读。
             }
 
             Assert.IsNull(grid.Connection);

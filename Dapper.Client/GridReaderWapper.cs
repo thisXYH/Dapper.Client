@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Threading.Tasks;
 using static Dapper.SqlMapper;
 
@@ -12,10 +11,10 @@ namespace Dapper.Client
     /// </summary>
     public class GridReaderWapper : IDisposable
     {
-        private GridReader _gridReader;
-        private DbConnection _connection;
+        private readonly GridReader _gridReader;
+        private IDbConnection _connection;
 
-        internal GridReaderWapper(GridReader gridReader, DbConnection connection)
+        internal GridReaderWapper(GridReader gridReader, IDbConnection connection)
         {
             _gridReader = gridReader;
             _connection = connection;
@@ -23,23 +22,19 @@ namespace Dapper.Client
 
         public IDbCommand Command
         {
-            get { return _gridReader.Command; }
-            set { _gridReader.Command = value; }
+            get => _gridReader.Command;
+            set => _gridReader.Command = value;
         }
 
         public bool IsConsumed => _gridReader.IsConsumed;
 
-        public DbConnection Connection => _connection;
+        public IDbConnection Connection => _connection;
 
         public void Dispose()
         {
             _gridReader.Dispose();
 
-            if (_connection != null && _connection.State != ConnectionState.Closed)
-            {
-                _connection.Close();
-                _connection = null;
-            }
+            CloseConnection();
         }
 
         /// <summary>
@@ -47,61 +42,69 @@ namespace Dapper.Client
         /// </summary>
         private void CloseConnectionThenIsConsumedIsTrue()
         {
-            if (IsConsumed == true)
+            if (IsConsumed)
             {
-                if (_connection.State != ConnectionState.Closed)
-                {
-                    _connection.Close();
-                    _connection = null;
-                }
+                CloseConnection();
+            }
+        }
+
+        /// <summary>
+        /// 关闭链接。 
+        /// </summary>
+        private void CloseConnection()
+        {
+            if (_connection != null && _connection.State != ConnectionState.Closed)
+            {
+                _connection.Close();
+                _connection = null;
             }
         }
 
         public IEnumerable<TReturn> Read<TReturn>(Type[] types, Func<object[], TReturn> map, string splitOn = "id", bool buffered = true)
         {
-            var temp = _gridReader.Read<TReturn>(types, map, splitOn, buffered);
+            var temp = _gridReader.Read(types, map, splitOn, buffered);
             CloseConnectionThenIsConsumedIsTrue();
             return temp;
         }
 
         public IEnumerable<TReturn> Read<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn> func, string splitOn = "id", bool buffered = true)
         {
-            var temp = _gridReader.Read<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(func, splitOn, buffered);
+            var temp = _gridReader.Read(func, splitOn, buffered);
             CloseConnectionThenIsConsumedIsTrue();
             return temp;
         }
 
         public IEnumerable<TReturn> Read<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn> func, string splitOn = "id", bool buffered = true)
         {
-            var temp = _gridReader.Read<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(func, splitOn, buffered);
+            var temp = _gridReader.Read(func, splitOn, buffered);
             CloseConnectionThenIsConsumedIsTrue();
             return temp;
         }
 
         public IEnumerable<TReturn> Read<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(Func<TFirst, TSecond, TThird, TFourth, TFifth, TReturn> func, string splitOn = "id", bool buffered = true)
         {
-            var temp = _gridReader.Read<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(func, splitOn, buffered);
+            var temp = _gridReader.Read(func, splitOn, buffered);
             CloseConnectionThenIsConsumedIsTrue();
             return temp;
         }
 
         public IEnumerable<TReturn> Read<TFirst, TSecond, TThird, TFourth, TReturn>(Func<TFirst, TSecond, TThird, TFourth, TReturn> func, string splitOn = "id", bool buffered = true)
         {
-            var temp = _gridReader.Read<TFirst, TSecond, TThird, TFourth, TReturn>(func, splitOn, buffered);
+            var temp = _gridReader.Read(func, splitOn, buffered);
             CloseConnectionThenIsConsumedIsTrue();
             return temp;
         }
 
         public IEnumerable<TReturn> Read<TFirst, TSecond, TThird, TReturn>(Func<TFirst, TSecond, TThird, TReturn> func, string splitOn = "id", bool buffered = true)
         {
-            var temp = _gridReader.Read<TFirst, TSecond, TThird, TReturn>(func, splitOn, buffered);
+            var temp = _gridReader.Read(func, splitOn, buffered);
             CloseConnectionThenIsConsumedIsTrue();
             return temp;
         }
 
         public IEnumerable<TReturn> Read<TFirst, TSecond, TReturn>(Func<TFirst, TSecond, TReturn> func, string splitOn = "id", bool buffered = true)
         {
-            var temp = _gridReader.Read<TFirst, TSecond, TReturn>(func, splitOn, buffered);
+            var temp = _gridReader.Read(func, splitOn, buffered);
             CloseConnectionThenIsConsumedIsTrue();
             return temp;
         }

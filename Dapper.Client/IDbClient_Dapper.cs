@@ -26,27 +26,24 @@ namespace Dapper.Client
         /// <summary>
         /// 执行参数化sql，返回<see cref="System.Data.IDataReader" />.
         /// </summary>
-        /// <param name="ccp">连接对象关闭操作。</param>
         /// <param name="command">命令定义。</param>
         /// <param name="commandBehavior">命令行为。</param>
-        IDataReader ExecuteReader(out ConnectionCloseOperate ccp, SlimCommandDefinition command, CommandBehavior commandBehavior);
+        IDataReader ExecuteReader(SlimCommandDefinition command, CommandBehavior commandBehavior);
 
         /// <summary>
         /// 执行参数化sql，返回<see cref="System.Data.IDataReader" />.
         /// </summary>
-        /// <param name="ccp">连接对象关闭操作。</param>
         /// <param name="command">命令定义。</param>
-        IDataReader ExecuteReader(out ConnectionCloseOperate ccp, SlimCommandDefinition command);
+        IDataReader ExecuteReader(SlimCommandDefinition command);
 
         /// <summary>
         /// 执行参数化sql，返回<see cref="System.Data.IDataReader" />.
         /// </summary>
-        /// <param name="ccp">连接对象关闭操作。</param>
         /// <param name="sql">执行语句。</param>
         /// <param name="param">执行参数。</param>
         /// <param name="commandTimeout">超时时间（秒）。</param>
         /// <param name="commandType">命令类型。</param>
-        IDataReader ExecuteReader(out ConnectionCloseOperate ccp, string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+        IDataReader ExecuteReader(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
 
         /// <summary>
         /// 执行选择单个值的参数化sql。

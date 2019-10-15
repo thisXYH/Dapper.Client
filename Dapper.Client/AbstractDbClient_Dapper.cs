@@ -27,10 +27,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.Execute(sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -51,10 +47,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.Execute(ConvertSlimCommandDefinitionWithWriteTimeout(command));
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -66,23 +58,24 @@ namespace Dapper.Client
         /// 执行参数化sql，返回<see cref="System.Data.IDataReader" />.
         /// <strong>该方法需要手动关闭连接对象。</strong>
         /// </summary>
-        /// <param name="ccp">连接对象关闭操作。</param>
         /// <param name="command">命令定义。</param>
         /// <param name="commandBehavior">命令行为。</param>
-        public IDataReader ExecuteReader(
-            out ConnectionCloseOperate ccp, SlimCommandDefinition command, CommandBehavior commandBehavior)
+        public IDataReader ExecuteReader(SlimCommandDefinition command, CommandBehavior commandBehavior)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                // 暴露一个关闭操作给外部，通过外部关闭当前连接。
-                ccp = new ConnectionCloseOperate(connection);
-                return connection.ExecuteReader(ConvertSlimCommandDefinitionWithWriteTimeout(command), commandBehavior);
+                return new DataReaderWrapper(
+                    connection.ExecuteReader(ConvertSlimCommandDefinitionWithWriteTimeout(command), commandBehavior),
+                    connection);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                if (connection != null)
+                    CloseConnection(connection);
+
+                throw;
             }
         }
 
@@ -90,21 +83,21 @@ namespace Dapper.Client
         /// 执行参数化sql，返回<see cref="System.Data.IDataReader" />.
         /// <strong>该方法需要手动关闭连接对象。</strong>
         /// </summary>
-        /// <param name="ccp">连接对象关闭操作。</param>
         /// <param name="command">命令定义。</param>
-        public IDataReader ExecuteReader(out ConnectionCloseOperate ccp, SlimCommandDefinition command)
+        public IDataReader ExecuteReader(SlimCommandDefinition command)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                // 暴露一个关闭操作给外部，通过外部关闭当前连接。
-                ccp = new ConnectionCloseOperate(connection);
-                return connection.ExecuteReader(ConvertSlimCommandDefinitionWithWriteTimeout(command));
+                return new DataReaderWrapper(connection.ExecuteReader(ConvertSlimCommandDefinitionWithWriteTimeout(command)), connection);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                if (connection != null)
+                    CloseConnection(connection);
+
+                throw;
             }
         }
 
@@ -112,26 +105,28 @@ namespace Dapper.Client
         /// 执行参数化sql，返回<see cref="System.Data.IDataReader" />.
         /// <strong>该方法需要手动关闭连接对象。</strong>
         /// </summary>
-        /// <param name="ccp">连接对象关闭操作。</param>
         /// <param name="sql">执行语句。</param>
         /// <param name="param">执行参数。</param>
         /// <param name="commandTimeout">超时时间（秒）。</param>
         /// <param name="commandType">命令类型。</param>
-        public IDataReader ExecuteReader(
-            out ConnectionCloseOperate ccp,
-            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
+        public IDataReader ExecuteReader(string sql, object param = null, int? commandTimeout = null,
+            CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                // 暴露一个关闭操作给外部，通过外部关闭当前连接。
-                ccp = new ConnectionCloseOperate(connection);
-                return connection.ExecuteReader(sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType);
+                return new DataReaderWrapper(
+                    connection.ExecuteReader(
+                        sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType),
+                    connection);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                if (connection != null)
+                    CloseConnection(connection);
+
+                throw;
             }
         }
 
@@ -150,10 +145,6 @@ namespace Dapper.Client
             {
                 connection = CreateAndOpenConnection();
                 return connection.ExecuteScalar(sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
@@ -180,10 +171,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.ExecuteScalar<T>(sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -205,10 +192,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.ExecuteScalar<T>(ConvertSlimCommandDefinitionWithWriteTimeout(command));
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -228,10 +211,6 @@ namespace Dapper.Client
             {
                 connection = CreateAndOpenConnection();
                 return connection.ExecuteScalar(ConvertSlimCommandDefinitionWithWriteTimeout(command));
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
@@ -263,10 +242,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.Query(type, sql, param, Transaction, buffered, commandTimeout ?? DefaultReadTimeout, commandType);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -297,10 +272,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.Query<T>(sql, param, Transaction, buffered, commandTimeout ?? DefaultReadTimeout, commandType);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -330,11 +301,7 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.Query<TReturn>(sql, types, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
+                return connection.Query(sql, types, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
             }
             finally
             {
@@ -371,12 +338,8 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
+                return connection.Query(
                     sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
@@ -411,12 +374,8 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
+                return connection.Query(
                     sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
@@ -447,12 +406,8 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.Query<TFirst, TSecond, TReturn>(
+                return connection.Query(
                     sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
@@ -487,12 +442,8 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.Query<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
+                return connection.Query(
                     sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
@@ -526,12 +477,8 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.Query<TFirst, TSecond, TThird, TFourth, TReturn>(
+                return connection.Query(
                     sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
@@ -557,10 +504,6 @@ namespace Dapper.Client
             {
                 connection = CreateAndOpenConnection();
                 return connection.Query(sql, param, Transaction, buffered, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
@@ -592,12 +535,8 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.Query<TFirst, TSecond, TThird, TReturn>(
+                return connection.Query(
                     sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
@@ -623,10 +562,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.Query<T>(ConvertSlimCommandDefinitionWithReadTimeout(command));
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -650,10 +585,6 @@ namespace Dapper.Client
             {
                 connection = CreateAndOpenConnection();
                 return connection.QueryFirst<T>(ConvertSlimCommandDefinitionWithReadTimeout(command));
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
@@ -683,10 +614,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.QueryFirst(type, sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -715,10 +642,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.QueryFirst<T>(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -742,10 +665,6 @@ namespace Dapper.Client
             {
                 connection = CreateAndOpenConnection();
                 return connection.QueryFirst(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
@@ -775,10 +694,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.QueryFirstOrDefault<T>(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -803,10 +718,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.QueryFirstOrDefault<T>(ConvertSlimCommandDefinitionWithReadTimeout(command));
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -830,10 +741,6 @@ namespace Dapper.Client
             {
                 connection = CreateAndOpenConnection();
                 return connection.QueryFirstOrDefault(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
@@ -863,10 +770,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.QueryFirstOrDefault(type, sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -892,9 +795,12 @@ namespace Dapper.Client
                 return new GridReaderWapper(
                     connection.QueryMultiple(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType), connection);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                if (connection != null)
+                    CloseConnection(connection);
+
+                throw;
             }
         }
 
@@ -911,9 +817,12 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return new GridReaderWapper(connection.QueryMultiple(ConvertSlimCommandDefinitionWithReadTimeout(command)), connection);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                if (connection != null)
+                    CloseConnection(connection);
+
+                throw;
             }
         }
 
@@ -939,10 +848,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.QuerySingle(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -967,10 +872,6 @@ namespace Dapper.Client
             {
                 connection = CreateAndOpenConnection();
                 return connection.QuerySingle<T>(ConvertSlimCommandDefinitionWithReadTimeout(command));
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
@@ -1001,10 +902,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.QuerySingle<T>(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -1029,10 +926,6 @@ namespace Dapper.Client
             {
                 connection = CreateAndOpenConnection();
                 return connection.QuerySingle(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
@@ -1059,10 +952,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.QuerySingleOrDefault(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -1087,10 +976,6 @@ namespace Dapper.Client
             {
                 connection = CreateAndOpenConnection();
                 return connection.QuerySingleOrDefault<T>(ConvertSlimCommandDefinitionWithReadTimeout(command));
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
@@ -1121,10 +1006,6 @@ namespace Dapper.Client
                 connection = CreateAndOpenConnection();
                 return connection.QuerySingleOrDefault<T>(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 if (connection != null)
@@ -1153,10 +1034,6 @@ namespace Dapper.Client
             {
                 connection = CreateAndOpenConnection();
                 return connection.QuerySingleOrDefault(type, sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             finally
             {
