@@ -1,5 +1,5 @@
 # Dapper.Client
-基于Daaper的简单ADO.NET访问数据的客户端。
+基于Dapper的快速访问客户端(mssql,mysql,oracle)
 
 ## 使用方式
 ````csharp

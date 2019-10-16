@@ -6,7 +6,7 @@
 
     <PackageId>Dapper.Client</PackageId>
     <PackageVersion>3.0.0</PackageVersion>
-    <PackageDescription>基于Daaper的简单访问数据的客户端(mssql、mysql、oracle)。</PackageDescription>
+    <PackageDescription>基于Dapper的快速访问客户端(mssql,mysql,oracle)</PackageDescription>
     <Authors>JiZhi</Authors>
     <RepositoryUrl>https://github.com/thisXYH/Dapper.Client</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
