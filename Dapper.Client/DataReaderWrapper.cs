@@ -3,16 +3,34 @@ using System.Data;
 
 namespace Dapper.Client
 {
-    public class DataReaderWrapper : IDataReader
+    /// <summary>
+    /// <see cref="IDataReader"/>的实现类，释放、关闭时也释放、关闭对应的链接对象。
+    /// </summary>
+    public sealed class DataReaderWrapper : IDataReader
     {
+        /// <summary>
+        /// 当前内部的DataReader对象。
+        /// </summary>
         private readonly IDataReader _dataReader;
+
+        /// <summary>
+        /// 当前DataReader使用的连接对象。
+        /// </summary>
         private IDbConnection _connection;
+
+        /// <summary>
+        /// Dispose 方法是否已经执行过。
+        /// </summary>
+        private bool _disposed;
 
         /// <summary>
         /// 连接对象是否已经关闭, 默认值false。
         /// </summary>
         private bool _isConnectionClosed;
 
+        /// <summary>
+        /// 连接对象是否已经关闭, 默认值false。
+        /// </summary>
         public bool IsConnectionClosed => _isConnectionClosed;
 
         internal DataReaderWrapper(IDataReader reader, IDbConnection connection)
@@ -29,26 +47,58 @@ namespace Dapper.Client
         /// </summary>
         private void CloseConnection()
         {
-            if (!_isConnectionClosed && _connection != null && _connection.State != ConnectionState.Closed)
-            {
-                _connection.Close();
-                _connection = null;
+            if (_isConnectionClosed || _connection == null || _connection.State == ConnectionState.Closed) return;
 
-                _isConnectionClosed = true;
-            }
+            _connection.Close();
+            _connection = null;
+            _isConnectionClosed = true;
         }
 
+        /// <summary>
+        /// 释放对象。
+        /// </summary>
         public void Dispose()
         {
-            _dataReader.Dispose();
+            if (_disposed)
+                return;
 
+            _disposed = true;
+
+            _dataReader.Dispose();
             CloseConnection();
+
+            GC.SuppressFinalize(this);
+        }
+
+        ~DataReaderWrapper()
+        {
+            if (_disposed)
+                return;
+
+            // 参考：
+            // https://msdn.microsoft.com/en-us/library/system.data.common.dbconnection.close.aspx
+            // -----
+            // Do not call Close or Dispose on a Connection, a DataReader, or any other managed object 
+            // in the Finalize method of your class. In a finalizer, you should only release unmanaged 
+            // resources that your class owns directly.
+            // -----
+            // Finalize 中不能调用 DbConnection.Close，否则会出现异常：
+            //     InvalidOperationException: Internal .Net Framework Data Provider error 1.
+            // 所以仅在从 Dispose 方法进入时关闭连接。但 DbConnection 自身的释放可能不会很及时，
+            // 这里只能先释放掉DataReader对象。
+            try
+            {
+                _dataReader.Dispose();
+            }
+            catch
+            {
+                // 忽略异常，否则在GC线程内抛出异常会导致整个程序崩溃。
+            }
         }
 
         public void Close()
         {
             _dataReader.Close();
-
             CloseConnection();
         }
 

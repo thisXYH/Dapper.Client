@@ -62,7 +62,10 @@ namespace Dapper.Client
         /// <param name="dbProviderFactory"><see cref="DbProviderFactory"/>实例。</param>
         /// <param name="connectionString">初始化数据库连接的连接字符串。</param>
         /// <param name="commandReadTimeout">
-        /// 指定事务内的命令的默认执行超时时间，当方法没有单独制定超时时，套用此超时值。
+        /// 指定事务内的读取命令的默认执行超时时间，当方法没有单独制定超时时，套用此超时值。
+        /// </param>
+        /// <param name="commandWriteTimeout">
+        /// 指定事务内的写入命令的默认执行超时时间，当方法没有单独制定超时时，套用此超时值。
         /// </param>
         public ThreadLocalTransactionKeeper(
             DbProviderFactory dbProviderFactory, string connectionString, int? commandReadTimeout = null, int? commandWriteTimeout = null)
@@ -107,6 +110,9 @@ namespace Dapper.Client
             }
         }
 
+        /// <summary>
+        /// 释放对象。
+        /// </summary>
         /// <inheritdoc cref="IDisposable.Dispose" />
         public void Dispose()
         {
@@ -132,6 +138,9 @@ namespace Dapper.Client
             _disposed = true;
         }
 
+        /// <summary>
+        /// 提交事务。
+        /// </summary>
         /// <inheritdoc cref="ITransactionKeeper.Commit" />
         public void Commit()
         {
@@ -142,6 +151,9 @@ namespace Dapper.Client
             _transactionCompleted = true;
         }
 
+        /// <summary>
+        /// 回滚事务。
+        /// </summary>
         /// <inheritdoc cref="ITransactionKeeper.Rollback" />
         public void Rollback()
         {
@@ -166,6 +178,7 @@ namespace Dapper.Client
             return _connection;
         }
 
+        /// <inheritdoc cref="AbstractDbClient.OpenConnection" />
         protected override void OpenConnection(DbConnection connection)
         {
             CheckStatus();
@@ -179,6 +192,7 @@ namespace Dapper.Client
             _transaction = connection.BeginTransaction();
         }
 
+        /// <inheritdoc cref="AbstractDbClient.OpenConnectionAsync" />
         protected override async Task OpenConnectionAsync(DbConnection connection)
         {
             CheckStatus();
@@ -208,6 +222,9 @@ namespace Dapper.Client
             return this;
         }
 
+        /// <summary>
+        /// 检查当前状态是否允许执行操作，不允许的话直接抛出异常。
+        /// </summary>
         private void CheckStatus()
         {
             if (_transactionCompleted)
@@ -217,7 +234,9 @@ namespace Dapper.Client
                 throw new ObjectDisposedException(GetType().Name);
         }
 
-        // 检查当前实例的状态，在状态无效时抛出异常。若当前事务能够被提交或回滚，返回 true。
+        /// <summary>
+        /// 检查当前实例的状态，在状态无效时抛出异常。若当前事务能够被提交或回滚，返回 true。
+        /// </summary>
         private bool CanCommitOrRollback
         {
             get

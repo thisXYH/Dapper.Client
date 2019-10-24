@@ -9,18 +9,38 @@ namespace Dapper.Client
     /// <summary>
     /// 对<see cref="GridReader"/>的包装类，添加关闭连接对象的方法。
     /// </summary>
-    public class GridReaderWapper : IDisposable
+    public sealed class  GridReaderWapper : IDisposable
     {
+        /// <summary>
+        /// 当前持有的GridReader对象。
+        /// </summary>
         private readonly GridReader _gridReader;
+
+        /// <summary>
+        /// 当前GridReader对象使用的连接对象。
+        /// </summary>
         private IDbConnection _connection;
+
+        /// <summary>
+        /// Dispose 方法是否已经执行过。
+        /// </summary>
+        private bool _disposed;
 
         /// <summary>
         /// 连接对象是否已经关闭, 默认值false。
         /// </summary>
         private bool _isConnectionClosed;
 
+        /// <summary>
+        /// 连接对象是否已经关闭, 默认值false。
+        /// </summary>
         public bool IsConnectionClosed => _isConnectionClosed;
 
+        /// <summary>
+        /// 创建<see cref="GridReaderWapper"/>新实例。
+        /// </summary>
+        /// <param name="gridReader">被包装的<see cref="IDataReader"/>对象。</param>
+        /// <param name="connection"><see cref="IDataReader"/>对象使用的<see cref="IDbConnection"/>连接对象。</param>
         internal GridReaderWapper(GridReader gridReader, IDbConnection connection)
         {
             ArgAssert.NotNull(gridReader, nameof(gridReader));
