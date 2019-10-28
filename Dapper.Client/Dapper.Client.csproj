@@ -5,7 +5,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
     <PackageId>Dapper.Client</PackageId>
-    <PackageVersion>3.0.0</PackageVersion>
+    <PackageVersion>3.1.0</PackageVersion>
     <PackageDescription>基于Dapper的快速访问客户端(mssql,mysql,oracle)</PackageDescription>
     <Authors>JiZhi</Authors>
     <RepositoryUrl>https://github.com/thisXYH/Dapper.Client</RepositoryUrl>
