@@ -56,13 +56,46 @@ namespace Dapper.Client
             set => _gridReader.Command = value;
         }
 
+        /// <summary>
+        /// 是否已读取完，当读取完时连接对象会自动关闭。
+        /// </summary>
         public bool IsConsumed => _gridReader.IsConsumed;
 
         public void Dispose()
         {
-            _gridReader.Dispose();
+            if (_disposed)
+                return;
+            _disposed = true;
 
+            _gridReader.Dispose();
             CloseConnection();
+            GC.SuppressFinalize(this);
+        }
+
+        ~GridReaderWapper()
+        {
+            if (_disposed)
+                return;
+
+            // 参考：
+            // https://msdn.microsoft.com/en-us/library/system.data.common.dbconnection.close.aspx
+            // -----
+            // Do not call Close or Dispose on a Connection, a DataReader, or any other managed object 
+            // in the Finalize method of your class. In a finalizer, you should only release unmanaged 
+            // resources that your class owns directly.
+            // -----
+            // Finalize 中不能调用 DbConnection.Close，否则会出现异常：
+            //     InvalidOperationException: Internal .Net Framework Data Provider error 1.
+            // 所以仅在从 Dispose 方法进入时关闭连接。但 DbConnection 自身的释放可能不会很及时，
+            // 这里只能先释放掉GridReader对象。
+            try
+            {
+                _gridReader.Dispose();
+            }
+            catch
+            {
+                // 忽略异常，否则在GC线程内抛出异常会导致整个程序崩溃。
+            }
         }
 
         /// <summary>
@@ -81,13 +114,11 @@ namespace Dapper.Client
         /// </summary>
         private void CloseConnection()
         {
-            if (!_isConnectionClosed && _connection != null && _connection.State != ConnectionState.Closed)
-            {
-                _connection.Close();
-                _connection = null;
+            if (_isConnectionClosed || _connection == null || _connection.State == ConnectionState.Closed) return;
 
-                _isConnectionClosed = true;
-            }
+            _connection.Close();
+            _connection = null;
+            _isConnectionClosed = true;
         }
 
         public IEnumerable<TReturn> Read<TReturn>(Type[] types, Func<object[], TReturn> map, string splitOn = "id", bool buffered = true)

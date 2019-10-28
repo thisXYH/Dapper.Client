@@ -61,12 +61,10 @@ namespace Dapper.Client
         {
             if (_disposed)
                 return;
-
             _disposed = true;
 
             _dataReader.Dispose();
             CloseConnection();
-
             GC.SuppressFinalize(this);
         }
 
