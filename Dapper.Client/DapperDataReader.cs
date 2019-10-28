@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 
 namespace Dapper.Client
 {
     /// <summary>
     /// <see cref="IDataReader"/>的实现类，释放、关闭时也释放、关闭对应的链接对象。
     /// </summary>
-    public sealed class DataReaderWrapper : IDataReader
+    public sealed class DapperDataReader : IDataReader
     {
         /// <summary>
         /// 当前内部的DataReader对象。
@@ -16,7 +17,12 @@ namespace Dapper.Client
         /// <summary>
         /// 当前DataReader使用的连接对象。
         /// </summary>
-        private IDbConnection _connection;
+        private DbConnection _connection;
+
+        /// <summary>
+        /// 当前连接对象是否开启了事务。
+        /// </summary>
+        private readonly bool _inTransaction;
 
         /// <summary>
         /// Dispose 方法是否已经执行过。
@@ -29,17 +35,19 @@ namespace Dapper.Client
         private bool _isConnectionClosed;
 
         /// <summary>
-        /// 连接对象是否已经关闭, 默认值false。
+        /// 创建<see cref="DapperDataReader"/>新实例。
         /// </summary>
-        public bool IsConnectionClosed => _isConnectionClosed;
-
-        internal DataReaderWrapper(IDataReader reader, IDbConnection connection)
+        /// <param name="reader">被包装的<see cref="IDataReader"/>对象。</param>
+        /// <param name="connection">连接对象。</param>
+        /// <param name="inTransaction">当前连接对象是否开启了事务。</param>
+        internal DapperDataReader(IDataReader reader, DbConnection connection, bool inTransaction)
         {
             ArgAssert.NotNull(reader, nameof(reader));
             ArgAssert.NotNull(connection, nameof(connection));
 
             _dataReader = reader;
             _connection = connection;
+            _inTransaction = inTransaction;
         }
 
         /// <summary>
@@ -47,11 +55,11 @@ namespace Dapper.Client
         /// </summary>
         private void CloseConnection()
         {
-            if (_isConnectionClosed || _connection == null || _connection.State == ConnectionState.Closed) return;
+            if (_inTransaction || _isConnectionClosed || _connection == null || _connection.State == ConnectionState.Closed) return;
 
+            _isConnectionClosed = true;
             _connection.Close();
             _connection = null;
-            _isConnectionClosed = true;
         }
 
         /// <summary>
@@ -68,7 +76,7 @@ namespace Dapper.Client
             GC.SuppressFinalize(this);
         }
 
-        ~DataReaderWrapper()
+        ~DapperDataReader()
         {
             if (_disposed)
                 return;

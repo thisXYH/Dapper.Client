@@ -102,8 +102,25 @@ namespace Dapper.Client.Test
             await grid.ReadAsync<Person>();
             grid.Read<Person>();
 
-            Assert.IsTrue(grid.IsConnectionClosed);
             Assert.IsTrue(grid.IsConsumed);
+        }
+
+        [Test]
+        public async Task GridReaderWapperTransaction()
+        {
+            using var tran = _sqlDbClient.CreateTransaction();
+            AddPerson(tran);
+
+            // 当读取到最后一个结果集的时候
+            // 因为开启了事务，所以不会触发连接关闭代码。
+            var grid = tran.QueryMultiple(new SlimCommandDefinition("select * from person;select * from person;"));
+
+            await grid.ReadAsync<Person>();
+            grid.Read<Person>();
+
+            Assert.IsTrue(grid.IsConsumed);
+
+            tran.Rollback();
         }
 
         [Test]
@@ -122,7 +139,6 @@ namespace Dapper.Client.Test
 
             // 不是最后一个结果集, 但是连接随着grid 释放而释放。
             Assert.IsFalse(grid.IsConsumed);
-            Assert.IsTrue(grid.IsConnectionClosed);
         }
 
         [Test]
@@ -136,7 +152,6 @@ namespace Dapper.Client.Test
 
             //随着 reader 关闭 connection 也关闭。
             Assert.IsTrue(reader.IsClosed);
-            Assert.IsTrue(((DataReaderWrapper)reader).IsConnectionClosed);
         }
 
         [Test]
@@ -155,7 +170,6 @@ namespace Dapper.Client.Test
 
             //随着 reader 释放 connection 也释放。
             Assert.IsTrue(reader.IsClosed);
-            Assert.IsTrue(((DataReaderWrapper)reader).IsConnectionClosed);
         }
 
 

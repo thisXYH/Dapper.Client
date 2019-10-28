@@ -66,9 +66,9 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return new DataReaderWrapper(
+                return new DapperDataReader(
                     connection.ExecuteReader(ConvertSlimCommandDefinitionWithWriteTimeout(command), commandBehavior),
-                    connection);
+                    connection, Transaction != null);
             }
             catch (Exception)
             {
@@ -90,7 +90,8 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return new DataReaderWrapper(connection.ExecuteReader(ConvertSlimCommandDefinitionWithWriteTimeout(command)), connection);
+                return new DapperDataReader(connection.ExecuteReader(ConvertSlimCommandDefinitionWithWriteTimeout(command)),
+                    connection, Transaction != null);
             }
             catch (Exception)
             {
@@ -116,10 +117,10 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return new DataReaderWrapper(
+                return new DapperDataReader(
                     connection.ExecuteReader(
                         sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType),
-                    connection);
+                    connection, Transaction != null);
             }
             catch (Exception)
             {
@@ -793,7 +794,8 @@ namespace Dapper.Client
             {
                 connection = CreateAndOpenConnection();
                 return new GridReaderWapper(
-                    connection.QueryMultiple(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType), connection);
+                    connection.QueryMultiple(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType),
+                    connection, Transaction != null);
             }
             catch (Exception)
             {
@@ -815,7 +817,8 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return new GridReaderWapper(connection.QueryMultiple(ConvertSlimCommandDefinitionWithReadTimeout(command)), connection);
+                return new GridReaderWapper(connection.QueryMultiple(ConvertSlimCommandDefinitionWithReadTimeout(command)),
+                    connection, Transaction != null);
             }
             catch (Exception)
             {

@@ -63,9 +63,10 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return new DataReaderWrapper(
+                return new DapperDataReader(
                     await connection.ExecuteReaderAsync(ConvertSlimCommandDefinitionWithReadTimeout(command),
-                        commandBehavior), connection);
+                        commandBehavior),
+                    connection, Transaction != null);
             }
             catch (Exception)
             {
@@ -86,8 +87,9 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return new DataReaderWrapper(
-                    await connection.ExecuteReaderAsync(ConvertSlimCommandDefinitionWithReadTimeout(command)), connection);
+                return new DapperDataReader(
+                    await connection.ExecuteReaderAsync(ConvertSlimCommandDefinitionWithReadTimeout(command)),
+                    connection, Transaction != null);
             }
             catch (Exception)
             {
@@ -112,8 +114,9 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return new DataReaderWrapper(
-                    await connection.ExecuteReaderAsync(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout), connection);
+                return new DapperDataReader(
+                    await connection.ExecuteReaderAsync(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout),
+                    connection, Transaction != null);
             }
             catch (Exception)
             {
@@ -1081,7 +1084,7 @@ namespace Dapper.Client
                 connection = await CreateAndOpenConnectionAsync();
                 return new GridReaderWapper(
                     await connection.QueryMultipleAsync(ConvertSlimCommandDefinitionWithReadTimeout(command)),
-                    connection);
+                    connection, Transaction != null);
             }
             catch (Exception)
             {
@@ -1107,7 +1110,9 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return new GridReaderWapper(await connection.QueryMultipleAsync(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType), connection);
+                return new GridReaderWapper(
+                    await connection.QueryMultipleAsync(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType),
+                    connection, Transaction != null);
             }
             catch (Exception)
             {
