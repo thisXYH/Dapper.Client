@@ -181,7 +181,7 @@ namespace Dapper.Client.Test
             const string sql =
                 "INSERT Person(Name,Age,Birthday,Height,Weight,InsertTime) output inserted.Id VALUES (@Name,@Age,@Birthday,@Height,@Weight,GETDATE())";
 
-            return db.ExecuteScalar<int>(sql, new
+            return db.Scalar<int>(sql, new
             {
                 Name = "¼«ÖÂ°¡",
                 Age = 24,

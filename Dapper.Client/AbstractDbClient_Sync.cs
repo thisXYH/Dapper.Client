@@ -34,93 +34,16 @@ namespace Dapper.Client
             }
         }
 
-        /// <summary>
-        /// 执行参数化sql。
-        /// </summary>
-        /// <param name="command">命令定义。</param>
-        /// <returns>返回受影响行数。</returns>
-        public int Execute(SlimCommandDefinition command)
+        ///<inheritdoc/>
+        public IEnumerable<IDataRecord> ExecuteReader(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.Execute(ConvertSlimCommandDefinitionWithWriteTimeout(command));
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行参数化sql，返回<see cref="System.Data.IDataReader" />.
-        /// <strong>该方法需要手动关闭连接对象。</strong>
-        /// </summary>
-        /// <param name="command">命令定义。</param>
-        /// <param name="commandBehavior">命令行为。</param>
-        public IDataReader ExecuteReader(SlimCommandDefinition command, CommandBehavior commandBehavior)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return new DapperDataReader(
-                    connection.ExecuteReader(ConvertSlimCommandDefinitionWithWriteTimeout(command), commandBehavior),
-                    connection, Transaction != null);
-            }
-            catch (Exception)
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// 执行参数化sql，返回<see cref="System.Data.IDataReader" />.
-        /// <strong>该方法需要手动关闭连接对象。</strong>
-        /// </summary>
-        /// <param name="command">命令定义。</param>
-        public IDataReader ExecuteReader(SlimCommandDefinition command)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return new DapperDataReader(connection.ExecuteReader(ConvertSlimCommandDefinitionWithWriteTimeout(command)),
-                    connection, Transaction != null);
-            }
-            catch (Exception)
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// 执行参数化sql，返回<see cref="System.Data.IDataReader" />.
-        /// <strong>该方法需要手动关闭连接对象。</strong>
-        /// </summary>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        public IDataReader ExecuteReader(string sql, object param = null, int? commandTimeout = null,
-            CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return new DapperDataReader(
-                    connection.ExecuteReader(
-                        sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType),
-                    connection, Transaction != null);
+                var reader = connection.ExecuteReader(
+                        sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType);
+                return YieldRows(connection, (DbDataReader)reader);
             }
             catch (Exception)
             {
@@ -139,7 +62,7 @@ namespace Dapper.Client
         /// <param name="commandTimeout">超时时间（秒）。</param>
         /// <param name="commandType">命令类型。</param>
         /// <returns>返回第一个单元格值。</returns>
-        public object ExecuteScalar(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
+        public object Scalar(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
             try
@@ -163,7 +86,7 @@ namespace Dapper.Client
         /// <param name="commandTimeout">超时时间（秒）。</param>
         /// <param name="commandType">命令类型。</param>
         /// <returns>返回第一个单元格值。</returns>
-        public T ExecuteScalar<T>(string sql, object param = null, int? commandTimeout = null,
+        public T Scalar<T>(string sql, object param = null, int? commandTimeout = null,
             CommandType? commandType = null)
         {
             DbConnection connection = null;
@@ -171,47 +94,6 @@ namespace Dapper.Client
             {
                 connection = CreateAndOpenConnection();
                 return connection.ExecuteScalar<T>(sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行选择单个值的参数化sql。
-        /// </summary>
-        /// <typeparam name="T">返回值的类型。</typeparam>
-        /// <param name="command">命令定义。</param>
-        /// <returns>返回第一个单元格值。</returns>
-        public T ExecuteScalar<T>(SlimCommandDefinition command)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.ExecuteScalar<T>(ConvertSlimCommandDefinitionWithWriteTimeout(command));
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行选择单个值的参数化sql。
-        /// </summary>
-        /// <param name="command">命令定义。</param>
-        /// <returns>返回第一个单元格值。</returns>
-        public object ExecuteScalar(SlimCommandDefinition command)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.ExecuteScalar(ConvertSlimCommandDefinitionWithWriteTimeout(command));
             }
             finally
             {
@@ -546,81 +428,6 @@ namespace Dapper.Client
             }
         }
 
-        /// <summary>
-        /// 执行一个单结果集的查询语句，返回指定类型集合。
-        /// </summary>
-        /// <typeparam name="T">返回值的类型。</typeparam>
-        /// <param name="command">命令定义。</param>
-        /// <returns>
-        /// 返回指定类型<typeparam name="T"/>的集合数据（映射方式：列名->成员名，忽略大小写），
-        /// 如果<ptypeparamaram name="T"/>是基础类型（int、string之类的）就取第一列的数据作为返回。
-        /// </returns>
-        public IEnumerable<T> Query<T>(SlimCommandDefinition command)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.Query<T>(ConvertSlimCommandDefinitionWithReadTimeout(command));
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句, 取结果集的第一行，如果没有数据则抛出异常。
-        /// </summary>
-        /// <typeparam name="T">返回值的类型。</typeparam>
-        /// <param name="command">命令定义。</param>
-        /// <returns>
-        /// 返回指定类型<typeparam name="T"/>数据（映射方式：列名->成员名，忽略大小写），
-        /// 如果<ptypeparamaram name="T"/>是基础类型（int、string之类的）就取第一个单元格的数据作为返回。
-        /// </returns>
-        public T QueryFirst<T>(SlimCommandDefinition command)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QueryFirst<T>(ConvertSlimCommandDefinitionWithReadTimeout(command));
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句, 取结果集的第一行，如果没有数据则抛出异常。
-        /// </summary>
-        /// <param name="type">返回值的类型。</param>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>
-        /// 返回指定类型<param name="type"/>的数据（映射方式：列名->成员名，忽略大小写），
-        /// 如果<param name="type"/>是基础类型（int、string之类的）就取第一个单元格的数据作为返回。
-        /// </returns>
-        public object QueryFirst(Type type, string sql, object param = null, int? commandTimeout = null,
-            CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QueryFirst(type, sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
 
         /// <summary>
         /// 执行一个单结果集的查询语句, 取结果集的第一行，如果没有数据则抛出异常。
@@ -651,30 +458,6 @@ namespace Dapper.Client
         }
 
         /// <summary>
-        /// 执行一个单结果集的查询语句, 取结果集的第一行，如果没有数据则抛出异常。
-        /// </summary>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>返回动态类型数据，可以通过 *dynamic* 语法访问成员，也可以通过转成 IDictionary[string,object]访问。</returns>
-        public dynamic QueryFirst(string sql, object param = null, int? commandTimeout = null,
-            CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QueryFirst(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
         /// 执行一个单结果集的查询语句, 取结果集的第一行，如果没有数据则取默认值。
         /// </summary>
         /// <typeparam name="T">返回值的类型。</typeparam>
@@ -694,30 +477,6 @@ namespace Dapper.Client
             {
                 connection = CreateAndOpenConnection();
                 return connection.QueryFirstOrDefault<T>(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句, 取结果集的第一行，如果没有数据则取默认值。
-        /// </summary>
-        /// <typeparam name="T">返回值的类型。</typeparam>
-        /// <param name="command">命令定义。</param>
-        /// <returns>
-        /// 返回指定类型<typeparam name="T"/>数据（映射方式：列名->成员名，忽略大小写），
-        /// 如果<ptypeparamaram name="T"/>是基础类型（int、string之类的）就取第一个单元格的数据作为返回。
-        /// </returns>
-        public T QueryFirstOrDefault<T>(SlimCommandDefinition command)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QueryFirstOrDefault<T>(ConvertSlimCommandDefinitionWithReadTimeout(command));
             }
             finally
             {
@@ -806,243 +565,5 @@ namespace Dapper.Client
             }
         }
 
-        /// <summary>
-        /// 执行一个多结果集的查询语句, 并通过返回值访问每个结果集。
-        /// <strong>该方法需要手动关闭连接对象。</strong>
-        /// </summary>
-        /// <param name="command">命令定义。</param>
-        public GridReaderWapper QueryMultiple(SlimCommandDefinition command)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return new GridReaderWapper(connection.QueryMultiple(ConvertSlimCommandDefinitionWithReadTimeout(command)),
-                    connection, Transaction != null);
-            }
-            catch (Exception)
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句, 取结果集的第一行。
-        /// 异常情况：没有项、有多项。
-        /// </summary>
-        /// <param name="type">返回值的类型。</param>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>
-        /// 返回指定类型<param name="type"/>的数据（映射方式：列名->成员名，忽略大小写），
-        /// 如果<param name="type"/>是基础类型（int、string之类的）就取第一个单元格的数据作为返回。
-        /// </returns>
-        public object QuerySingle(Type type, string sql, object param = null, int? commandTimeout = null,
-            CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QuerySingle(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句, 取结果集的第一行。
-        /// 异常情况：没有项、有多项。
-        /// </summary>
-        /// <typeparam name="T">返回值的类型。</typeparam>
-        /// <param name="command">命令定义。</param>
-        /// <returns>
-        /// 返回指定类型<typeparam name="T"/>的数据（映射方式：列名->成员名，忽略大小写），
-        /// 如果<ptypeparamaram name="T"/>是基础类型（int、string之类的）就取第一个单元格的数据作为返回。
-        /// </returns>
-        public T QuerySingle<T>(SlimCommandDefinition command)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QuerySingle<T>(ConvertSlimCommandDefinitionWithReadTimeout(command));
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句, 取结果集的第一行。
-        /// 异常情况：没有项、有多项。
-        /// </summary>
-        /// <typeparam name="T">返回值的类型。</typeparam>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>
-        /// 返回指定类型<typeparam name="T"/>的数据（映射方式：列名->成员名，忽略大小写），
-        /// 如果<ptypeparamaram name="T"/>是基础类型（int、string之类的）就取第一个单元格的数据作为返回。
-        /// </returns>
-        public T QuerySingle<T>(string sql, object param = null, int? commandTimeout = null,
-            CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QuerySingle<T>(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句, 取结果集的第一行。
-        /// 异常情况：没有项、有多项。
-        /// </summary>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>返回动态类型，可以通过 *dynamic* 语法访问成员，也可以通过转成 IDictionary[string,object]访问。</returns>
-        public dynamic QuerySingle(string sql, object param = null, int? commandTimeout = null,
-            CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QuerySingle(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句, 取结果集的第一行, 没有项就取默认值。
-        /// 异常情况：有多项。
-        /// </summary>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>返回动态类型，可以通过 *dynamic* 语法访问成员，也可以通过转成 IDictionary[string,object]访问。</returns>
-        public dynamic QuerySingleOrDefault(string sql, object param = null, int? commandTimeout = null,
-            CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QuerySingleOrDefault(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句, 取结果集的第一行, 没有项就取默认值。
-        /// 异常情况：有多项。
-        /// </summary>
-        /// <typeparam name="T">返回值的类型。</typeparam>
-        /// <param name="command">命令定义。</param>
-        /// <returns>
-        /// 返回指定类型<typeparam name="T"/>的数据（映射方式：列名->成员名，忽略大小写），
-        /// 如果<ptypeparamaram name="T"/>是基础类型（int、string之类的）就取第一个单元格的数据作为返回。
-        /// </returns>
-        public T QuerySingleOrDefault<T>(SlimCommandDefinition command)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QuerySingleOrDefault<T>(ConvertSlimCommandDefinitionWithReadTimeout(command));
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句, 取结果集的第一行, 没有项就取默认值。
-        /// 异常情况：有多项。
-        /// </summary>
-        /// <typeparam name="T">返回值的类型。</typeparam>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>
-        /// 返回指定类型<typeparam name="T"/>的数据（映射方式：列名->成员名，忽略大小写），
-        /// 如果<ptypeparamaram name="T"/>是基础类型（int、string之类的）就取第一个单元格的数据作为返回。
-        /// </returns>
-        public T QuerySingleOrDefault<T>(string sql, object param = null, int? commandTimeout = null,
-            CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QuerySingleOrDefault<T>(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句, 取结果集的第一行, 没有项就取默认值。
-        /// 异常情况：有多项。
-        /// </summary>
-        /// <param name="type">返回值的类型。</param>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>
-        /// 返回指定类型<param name="type"/>的数据（映射方式：列名->成员名，忽略大小写），
-        /// 如果<param name="type"/>是基础类型（int、string之类的）就取第一个单元格的数据作为返回。
-        /// </returns>
-        public object QuerySingleOrDefault(Type type, string sql, object param = null, int? commandTimeout = null,
-            CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.QuerySingleOrDefault(type, sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
     }
 }

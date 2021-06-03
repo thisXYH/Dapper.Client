@@ -2,6 +2,7 @@ using System;
 using System.Data.Common;
 using System.Data;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Dapper.Client
 {
@@ -150,6 +151,25 @@ namespace Dapper.Client
         {
             if (connection.State != ConnectionState.Closed)
                 connection.Close();
+        }
+
+        private IEnumerable<IDataRecord> YieldRows(DbConnection connection, DbDataReader reader)
+        {
+            try
+            {
+                while (reader.Read())
+                {
+                    yield return reader;
+                }
+            }
+            finally
+            {
+                if (!reader.IsClosed)
+                    reader.Close();
+
+                if (connection != null)
+                    CloseConnection(connection);
+            }
         }
     }
 }
