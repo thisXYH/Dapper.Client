@@ -1,7 +1,6 @@
 using System.Data;
 using System.Data.Common;
 using MySql.Data.MySqlClient;
-using Oracle.ManagedDataAccess.Client;
 
 #if NET461
 using System.Data.SqlClient;
@@ -42,18 +41,18 @@ namespace Dapper.Client
         protected override DbProviderFactory Factory => SqlClientFactory.Instance;
     }
 
-    public class OracleDbClient : AbstractDbClient
-    {
-        public OracleDbClient(string connectionString)
-        {
-            ArgAssert.NotNullOrEmptyOrWhitespace(connectionString, nameof(connectionString));
-            ConnectionString = connectionString;
-        }
+    //public class OracleDbClient : AbstractDbClient
+    //{
+    //    public OracleDbClient(string connectionString)
+    //    {
+    //        ArgAssert.NotNullOrEmptyOrWhitespace(connectionString, nameof(connectionString));
+    //        ConnectionString = connectionString;
+    //    }
 
-        protected override IDbTransaction Transaction { get; } = null;
-        public override string ConnectionString { get; }
-        protected override DbProviderFactory Factory { get; } = OracleClientFactory.Instance;
-    }
+    //    protected override IDbTransaction Transaction { get; } = null;
+    //    public override string ConnectionString { get; }
+    //    protected override DbProviderFactory Factory { get; } = OracleClientFactory.Instance;
+    //}
 
     public class MySqlDbClient : AbstractDbClient
     {
