@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Dapper.Client
 {
     /// <summary>
-    /// <see cref="IDbClient"/>的基本实现。
+    /// <see cref="IDbClient"/>的抽象基本实现。
     /// </summary>
     public abstract partial class AbstractDbClient : IDbClient
     {
