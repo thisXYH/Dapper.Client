@@ -30,7 +30,7 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.ExecuteScalar(sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType);
+                return connection.ExecuteScalar(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
             }
             finally
             {
@@ -47,7 +47,7 @@ namespace Dapper.Client
             try
             {
                 connection = CreateAndOpenConnection();
-                return connection.ExecuteScalar<T>(sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType);
+                return connection.ExecuteScalar<T>(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
             }
             finally
             {
@@ -135,7 +135,7 @@ namespace Dapper.Client
             {
                 connection = CreateAndOpenConnection();
                 reader = (DbDataReader)connection.ExecuteReader(
-                    sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType);
+                    sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
                 return YieldRows(connection, reader);
             }
             finally

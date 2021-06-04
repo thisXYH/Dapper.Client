@@ -33,7 +33,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteScalarAsync<T>(sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType);
+                return await connection.ExecuteScalarAsync<T>(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
             }
             finally
             {
@@ -50,7 +50,7 @@ namespace Dapper.Client
             try
             {
                 connection = await CreateAndOpenConnectionAsync();
-                return await connection.ExecuteScalarAsync(sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType);
+                return await connection.ExecuteScalarAsync(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
             }
             finally
             {
