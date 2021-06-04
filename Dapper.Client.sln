@@ -8,10 +8,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_docs", "_docs", "{C9BEB616-FDA3-4E94-B304-C2566ED338D5}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
-		test.sql = test.sql
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.Client.Sample", "Dapper.Client.Sample\Dapper.Client.Sample.csproj", "{C3553E92-122D-4FFD-BAEC-44F91BED37DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Client.Sample", "Dapper.Client.Sample\Dapper.Client.Sample.csproj", "{C3553E92-122D-4FFD-BAEC-44F91BED37DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
