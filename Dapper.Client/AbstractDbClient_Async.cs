@@ -82,30 +82,6 @@ namespace Dapper.Client
         }
 
         /// <summary>
-        /// 执行一个单结果集的查询语句，返回动态类型集合。
-        /// </summary>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>返回动态类型集合，每一行可以通过 *dynamic* 语法访问成员，也可以通过转成 IDictionary[string,object]访问</returns>
-        public async Task<IEnumerable<dynamic>> QueryAsync(
-            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = await CreateAndOpenConnectionAsync();
-                return await connection.QueryAsync(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
         /// 执行一个单结果集的查询语句，返回指定类型集合。
         /// </summary>
         /// <typeparam name="T">返回值的类型。</typeparam>
@@ -242,7 +218,7 @@ namespace Dapper.Client
         }
 
         ///<inheritdoc/>
-        public async Task<IEnumerable<IDataRecord>> ExecuteReaderAsync(
+        public async Task<IEnumerable<IDataRecord>> RecordsAsync(
             string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             DbConnection connection = null;

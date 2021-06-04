@@ -106,13 +106,13 @@ namespace Dapper.Client
         object Get(Type type, string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
 
         /// <summary>
-        /// 执行参数化sql，返回<see cref="System.Data.IDataReader" />.
+        /// 执行参数化sql, 返回<see cref="IDataRecord"/>集合。
         /// </summary>
         /// <param name="sql">执行语句。</param>
         /// <param name="param">执行参数。</param>
         /// <param name="commandTimeout">超时时间（秒）。</param>
         /// <param name="commandType">命令类型。</param>
-        IEnumerable<IDataRecord> ExecuteReader(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+        IEnumerable<IDataRecord> Records(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
 
         /// <summary>
         ///  执行一个多结果集的查询语句, 并通过返回值访问每个结果集。

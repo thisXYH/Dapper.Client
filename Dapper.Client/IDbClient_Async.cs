@@ -111,7 +111,7 @@ namespace Dapper.Client
         /// <param name="param">执行参数。</param>
         /// <param name="commandTimeout">超时时间（秒）。</param>
         /// <param name="commandType">命令类型。</param>
-        Task<IEnumerable<IDataRecord>> ExecuteReaderAsync(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+        Task<IEnumerable<IDataRecord>> RecordsAsync(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
 
         /// <summary>
         ///  执行一个多结果集的查询语句, 并通过返回值访问每个结果集。
