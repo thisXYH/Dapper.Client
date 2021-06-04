@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 
 namespace Dapper.Client
 {
@@ -35,3 +36,4 @@ namespace Dapper.Client
         Oracle = 2
     }
 }
+*/

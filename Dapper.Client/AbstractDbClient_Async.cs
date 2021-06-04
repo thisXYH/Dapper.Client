@@ -32,26 +32,6 @@ namespace Dapper.Client
             }
         }
 
-        ///<inheritdoc/>
-        public async Task<IEnumerable<IDataRecord>> ExecuteReaderAsync(
-            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = await CreateAndOpenConnectionAsync();
-                var reader = await connection.ExecuteReaderAsync(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
-                return YieldRows(connection, reader);
-            }
-            catch (Exception)
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-
-                throw;
-            }
-        }
-
         /// <summary>
         /// 执行选择单个值的参数化sql。
         /// </summary>
@@ -137,7 +117,7 @@ namespace Dapper.Client
         /// 返回指定类型<typeparam name="T"/>的集合数据（映射方式：列名->成员名，忽略大小写），
         /// 如果<ptypeparamaram name="T"/>是基础类型（int、string之类的）就取第一列的数据作为返回。
         /// </returns>
-        public async Task<IEnumerable<T>> QueryAsync<T>(
+        public async Task<IEnumerable<T>> ListAsync<T>(
             string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
@@ -165,7 +145,7 @@ namespace Dapper.Client
         /// 返回指定类型<param name="type"/>的集合数据（映射方式：列名->成员名，忽略大小写），
         /// 如果<param name="type"/>是基础类型（int、string之类的）就取第一列的数据作为返回。
         /// </returns>
-        public async Task<IEnumerable<object>> QueryAsync(Type type, string sql, object param = null,
+        public async Task<IEnumerable<object>> ListAsync(Type type, string sql, object param = null,
             int? commandTimeout = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
@@ -189,7 +169,7 @@ namespace Dapper.Client
         /// <param name="commandTimeout">超时时间（秒）。</param>
         /// <param name="commandType">命令类型。</param>
         /// <returns>返回动态类型数据，可以通过 *dynamic* 语法访问成员，也可以通过转成 IDictionary[string,object]访问。</returns>
-        public async Task<dynamic> QueryFirstOrDefaultAsync(
+        public async Task<dynamic> GetAsync(
             string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
@@ -217,7 +197,7 @@ namespace Dapper.Client
         /// 返回指定类型<typeparam name="T"/>数据（映射方式：列名->成员名，忽略大小写），
         /// 如果<ptypeparamaram name="T"/>是基础类型（int、string之类的）就取第一个单元格的数据作为返回。
         /// </returns>
-        public async Task<T> QueryFirstOrDefaultAsync<T>(
+        public async Task<T> GetAsync<T>(
             string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
@@ -245,7 +225,7 @@ namespace Dapper.Client
         /// 返回指定类型<param name="type"/>的数据（映射方式：列名->成员名，忽略大小写），
         /// 如果<param name="type"/>是基础类型（int、string之类的）就取第一个单元格的数据作为返回。
         /// </returns>
-        public async Task<object> QueryFirstOrDefaultAsync(
+        public async Task<object> GetAsync(
             Type type, string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
@@ -256,6 +236,28 @@ namespace Dapper.Client
             }
             finally
             {
+                if (connection != null)
+                    CloseConnection(connection);
+            }
+        }
+
+        ///<inheritdoc/>
+        public async Task<IEnumerable<IDataRecord>> ExecuteReaderAsync(
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            DbConnection connection = null;
+            DbDataReader reader = null;
+            try
+            {
+                connection = await CreateAndOpenConnectionAsync();
+                reader = await connection.ExecuteReaderAsync(sql, param, Transaction, commandTimeout ?? DefaultReadTimeout, commandType);
+                return YieldRows(connection, reader);
+            }
+            finally
+            {
+                if (reader != null && !reader.IsClosed)
+                    reader.Close();
+
                 if (connection != null)
                     CloseConnection(connection);
             }

@@ -38,19 +38,21 @@ namespace Dapper.Client
         public IEnumerable<IDataRecord> ExecuteReader(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             DbConnection connection = null;
+            DbDataReader reader = null;
             try
             {
                 connection = CreateAndOpenConnection();
-                var reader = connection.ExecuteReader(
+                reader = (DbDataReader)connection.ExecuteReader(
                         sql, param, Transaction, commandTimeout ?? DefaultWriteTimeout, commandType);
-                return YieldRows(connection, (DbDataReader)reader);
+                return YieldRows(connection, reader);
             }
-            catch (Exception)
+            finally
             {
+                if (reader != null && !reader.IsClosed)
+                    reader.Close();
+
                 if (connection != null)
                     CloseConnection(connection);
-
-                throw;
             }
         }
 
@@ -115,7 +117,7 @@ namespace Dapper.Client
         /// 返回指定类型<param name="type"/>的集合数据（映射方式：列名->成员名，忽略大小写），
         /// 如果<param name="type"/>是基础类型（int、string之类的）就取第一列的数据作为返回。
         /// </returns>
-        public IEnumerable<object> Query(
+        public IEnumerable<object> List(
             Type type, string sql, object param = null, bool buffered = true,
             int? commandTimeout = null, CommandType? commandType = null)
         {
@@ -145,7 +147,7 @@ namespace Dapper.Client
         /// 返回指定类型<typeparam name="T"/>的集合数据（映射方式：列名->成员名，忽略大小写），
         /// 如果<ptypeparamaram name="T"/>是基础类型（int、string之类的）就取第一列的数据作为返回。
         /// </returns>
-        public IEnumerable<T> Query<T>(
+        public IEnumerable<T> List<T>(
             string sql, object param = null, bool buffered = true,
             int? commandTimeout = null, CommandType? commandType = null)
         {
@@ -154,214 +156,6 @@ namespace Dapper.Client
             {
                 connection = CreateAndOpenConnection();
                 return connection.Query<T>(sql, param, Transaction, buffered, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句，将指定的映射类型置换成返回类型。
-        /// </summary>
-        /// <typeparam name="TReturn">返回值的类型。</typeparam>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="types">映射类型。</param>
-        /// <param name="map">把映射类型置换成返回类型的委托。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="buffered">是否将结果缓存到内存中。</param>
-        /// <param name="splitOn">映射类型之间的分隔字段，缺省值Id。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>返回经<param name="map"/>处理的<typeparam name="TReturn"/></returns>
-        public IEnumerable<TReturn> Query<TReturn>(
-            string sql, Type[] types, Func<object[], TReturn> map,
-            object param = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null,
-            CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.Query(sql, types, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句，将指定的映射类型置换成返回类型。
-        /// </summary>
-        /// <typeparam name="TFirst">映射类型1。</typeparam>
-        /// <typeparam name="TSecond">映射类型2。</typeparam>
-        /// <typeparam name="TThird">映射类型3。</typeparam>
-        /// <typeparam name="TFourth">映射类型4。</typeparam>
-        /// <typeparam name="TFifth">映射类型5。</typeparam>
-        /// <typeparam name="TSixth">映射类型6。</typeparam>
-        /// <typeparam name="TSeventh">映射类型7。</typeparam>
-        /// <typeparam name="TReturn">返回值类型。</typeparam>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="map">把映射类型置换成返回类型的委托。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="buffered">是否将结果缓存到内存中。</param>
-        /// <param name="splitOn">映射类型之间的分隔字段，缺省值Id。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>返回经<param name="map"/>处理的<typeparam name="TReturn"/></returns>
-        public IEnumerable<TReturn> Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
-            string sql, Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn> map,
-            object param = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null,
-            CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.Query(
-                    sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句，将指定的映射类型置换成返回类型。
-        /// </summary>
-        /// <typeparam name="TFirst">映射类型1。</typeparam>
-        /// <typeparam name="TSecond">映射类型2。</typeparam>
-        /// <typeparam name="TThird">映射类型3。</typeparam>
-        /// <typeparam name="TFourth">映射类型4。</typeparam>
-        /// <typeparam name="TFifth">映射类型5。</typeparam>
-        /// <typeparam name="TSixth">映射类型6。</typeparam>
-        /// <typeparam name="TReturn"></typeparam>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="map">把映射类型置换成返回类型的委托。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="buffered">是否将结果缓存到内存中。</param>
-        /// <param name="splitOn">映射类型之间的分隔字段，缺省值Id。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>返回经<param name="map"/>处理的<typeparam name="TReturn"/></returns>
-        public IEnumerable<TReturn> Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
-            string sql, Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn> map, object param = null,
-            bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.Query(
-                    sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句，将指定的映射类型置换成返回类型。
-        /// </summary>
-        /// <typeparam name="TFirst">映射类型1。</typeparam>
-        /// <typeparam name="TSecond">映射类型2。</typeparam>
-        /// <typeparam name="TReturn"></typeparam>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="map">把映射类型置换成返回类型的委托。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="buffered">是否将结果缓存到内存中。</param>
-        /// <param name="splitOn">映射类型之间的分隔字段，缺省值Id。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>返回经<param name="map"/>处理的<typeparam name="TReturn"/></returns>
-        public IEnumerable<TReturn> Query<TFirst, TSecond, TReturn>(string sql, Func<TFirst, TSecond, TReturn> map,
-            object param = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null,
-            CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.Query(
-                    sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句，将指定的映射类型置换成返回类型。
-        /// </summary>
-        /// <typeparam name="TFirst">映射类型1。</typeparam>
-        /// <typeparam name="TSecond">映射类型2。</typeparam>
-        /// <typeparam name="TThird">映射类型3。</typeparam>
-        /// <typeparam name="TFourth">映射类型4。</typeparam>
-        /// <typeparam name="TFifth">映射类型5。</typeparam>
-        /// <typeparam name="TReturn"></typeparam>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="map">把映射类型置换成返回类型的委托。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="buffered">是否将结果缓存到内存中。</param>
-        /// <param name="splitOn">映射类型之间的分隔字段，缺省值Id。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>返回经<param name="map"/>处理的<typeparam name="TReturn"/></returns>
-        public IEnumerable<TReturn> Query<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
-            string sql,
-            Func<TFirst, TSecond, TThird, TFourth, TFifth, TReturn> map, object param = null, bool buffered = true,
-            string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.Query(
-                    sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句，将指定的映射类型置换成返回类型。
-        /// </summary>
-        /// <typeparam name="TFirst">映射类型1。</typeparam>
-        /// <typeparam name="TSecond">映射类型2。</typeparam>
-        /// <typeparam name="TThird">映射类型3。</typeparam>
-        /// <typeparam name="TFourth">映射类型4。</typeparam>
-        /// <typeparam name="TReturn"></typeparam>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="map">把映射类型置换成返回类型的委托。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="buffered">是否将结果缓存到内存中。</param>
-        /// <param name="splitOn">映射类型之间的分隔字段，缺省值Id。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>返回经<param name="map"/>处理的<typeparam name="TReturn"/></returns>
-        public IEnumerable<TReturn> Query<TFirst, TSecond, TThird, TFourth, TReturn>(
-            string sql,
-            Func<TFirst, TSecond, TThird, TFourth, TReturn> map, object param = null, bool buffered = true,
-            string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.Query(
-                    sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
             }
             finally
             {
@@ -394,40 +188,6 @@ namespace Dapper.Client
                     CloseConnection(connection);
             }
         }
-
-        /// <summary>
-        /// 执行一个单结果集的查询语句，将指定的映射类型置换成返回类型。
-        /// </summary>
-        /// <typeparam name="TFirst">映射类型1。</typeparam>
-        /// <typeparam name="TSecond">映射类型2。</typeparam>
-        /// <typeparam name="TThird">映射类型3。</typeparam>
-        /// <typeparam name="TReturn"></typeparam>
-        /// <param name="sql">执行语句。</param>
-        /// <param name="map">把映射类型置换成返回类型的委托。</param>
-        /// <param name="param">执行参数。</param>
-        /// <param name="buffered">是否将结果缓存到内存中。</param>
-        /// <param name="splitOn">映射类型之间的分隔字段，缺省值Id。</param>
-        /// <param name="commandTimeout">超时时间（秒）。</param>
-        /// <param name="commandType">命令类型。</param>
-        /// <returns>返回经<param name="map"/>处理的<typeparam name="TReturn"/></returns>
-        public IEnumerable<TReturn> Query<TFirst, TSecond, TThird, TReturn>(string sql,
-            Func<TFirst, TSecond, TThird, TReturn> map, object param = null, bool buffered = true,
-            string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
-        {
-            DbConnection connection = null;
-            try
-            {
-                connection = CreateAndOpenConnection();
-                return connection.Query(
-                    sql, map, param, Transaction, buffered, splitOn, commandTimeout ?? DefaultReadTimeout, commandType);
-            }
-            finally
-            {
-                if (connection != null)
-                    CloseConnection(connection);
-            }
-        }
-
 
         /// <summary>
         /// 执行一个单结果集的查询语句, 取结果集的第一行，如果没有数据则抛出异常。
@@ -469,7 +229,7 @@ namespace Dapper.Client
         /// 返回指定类型<typeparam name="T"/>数据（映射方式：列名->成员名，忽略大小写），
         /// 如果<ptypeparamaram name="T"/>是基础类型（int、string之类的）就取第一个单元格的数据作为返回。
         /// </returns>
-        public T QueryFirstOrDefault<T>(string sql, object param = null, int? commandTimeout = null,
+        public T Get<T>(string sql, object param = null, int? commandTimeout = null,
             CommandType? commandType = null)
         {
             DbConnection connection = null;
@@ -493,7 +253,7 @@ namespace Dapper.Client
         /// <param name="commandTimeout">超时时间（秒）。</param>
         /// <param name="commandType">命令类型。</param>
         /// <returns>返回动态类型数据，可以通过 *dynamic* 语法访问成员，也可以通过转成 IDictionary[string,object]访问。</returns>
-        public dynamic QueryFirstOrDefault(string sql, object param = null, int? commandTimeout = null,
+        public dynamic Get(string sql, object param = null, int? commandTimeout = null,
             CommandType? commandType = null)
         {
             DbConnection connection = null;
@@ -521,7 +281,7 @@ namespace Dapper.Client
         /// 返回指定类型<param name="type"/>的数据（映射方式：列名->成员名，忽略大小写），
         /// 如果<param name="type"/>是基础类型（int、string之类的）就取第一个单元格的数据作为返回。
         /// </returns>
-        public object QueryFirstOrDefault(Type type, string sql, object param = null, int? commandTimeout = null,
+        public object Get(Type type, string sql, object param = null, int? commandTimeout = null,
             CommandType? commandType = null)
         {
             DbConnection connection = null;

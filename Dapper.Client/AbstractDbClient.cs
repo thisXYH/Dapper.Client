@@ -8,7 +8,6 @@ namespace Dapper.Client
 {
     /// <summary>
     /// <see cref="IDbClient"/>的基本实现。
-    /// 这是一个抽象类。
     /// </summary>
     public abstract partial class AbstractDbClient : IDbClient
     {

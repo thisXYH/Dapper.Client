@@ -1,12 +1,6 @@
+/*
 using System.Data;
 using System.Data.Common;
-using MySql.Data.MySqlClient;
-
-#if NET461
-using System.Data.SqlClient;
-#elif NETSTANDARD2_0
-using Microsoft.Data.SqlClient;
-#endif
 
 namespace Dapper.Client
 {
@@ -67,3 +61,4 @@ namespace Dapper.Client
         protected override DbProviderFactory Factory { get; } = MySqlClientFactory.Instance;
     }
 }
+*/
