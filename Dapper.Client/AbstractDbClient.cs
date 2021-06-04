@@ -2,12 +2,12 @@ using System;
 using System.Data.Common;
 using System.Data;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Dapper.Client
 {
     /// <summary>
-    /// <see cref="IDbClient"/>的基本实现。
-    /// 这是一个抽象类。
+    /// <see cref="IDbClient"/>的抽象基本实现。
     /// </summary>
     public abstract partial class AbstractDbClient : IDbClient
     {
@@ -51,40 +51,6 @@ namespace Dapper.Client
         public virtual ITransactionKeeper CreateTransaction()
         {
             return new ThreadLocalTransactionKeeper(Factory, ConnectionString, DefaultReadTimeout, DefaultWriteTimeout);
-        }
-
-        /// <summary>
-        /// 把<see cref="SlimCommandDefinition"/>转成<see cref="CommandDefinition"/>。
-        /// 其中使用<see cref="DefaultReadTimeout"/>做超时时间的缺省值。
-        /// </summary>
-        protected CommandDefinition ConvertSlimCommandDefinitionWithReadTimeout(
-            SlimCommandDefinition slimCommandDefinition)
-        {
-            return new CommandDefinition(
-                slimCommandDefinition.CommandText,
-                slimCommandDefinition.Parameters,
-                Transaction,
-                slimCommandDefinition.CommandTimeout ?? DefaultReadTimeout,
-                slimCommandDefinition.CommandType,
-                slimCommandDefinition.Flags,
-                slimCommandDefinition.CancellationToken);
-        }
-
-        /// <summary>
-        /// 把<see cref="SlimCommandDefinition"/>转成<see cref="CommandDefinition"/>。
-        /// 其中使用<see cref="DefaultWriteTimeout"/>做超时时间的缺省值。
-        /// </summary>
-        protected CommandDefinition ConvertSlimCommandDefinitionWithWriteTimeout(
-            SlimCommandDefinition slimCommandDefinition)
-        {
-            return new CommandDefinition(
-                slimCommandDefinition.CommandText,
-                slimCommandDefinition.Parameters,
-                Transaction,
-                slimCommandDefinition.CommandTimeout ?? DefaultWriteTimeout,
-                slimCommandDefinition.CommandType,
-                slimCommandDefinition.Flags,
-                slimCommandDefinition.CancellationToken);
         }
 
         /// <summary>
@@ -150,6 +116,25 @@ namespace Dapper.Client
         {
             if (connection.State != ConnectionState.Closed)
                 connection.Close();
+        }
+
+        private IEnumerable<IDataRecord> YieldRows(DbConnection connection, DbDataReader reader)
+        {
+            try
+            {
+                while (reader.Read())
+                {
+                    yield return reader;
+                }
+            }
+            finally
+            {
+                if (!reader.IsClosed)
+                    reader.Close();
+
+                if (connection != null)
+                    CloseConnection(connection);
+            }
         }
     }
 }

@@ -1,31 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-
     <PackageId>Dapper.Client</PackageId>
-    <PackageVersion>3.1.0</PackageVersion>
-    <PackageDescription>基于Dapper的快速访问客户端(mssql,mysql,oracle)</PackageDescription>
+    <PackageVersion>4.0.0</PackageVersion>
+    <PackageDescription>基于Dapper的数据库客户端抽象,简单实现快速访问</PackageDescription>
     <Authors>JiZhi</Authors>
     <RepositoryUrl>https://github.com/thisXYH/Dapper.Client</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>sql;dapper</PackageTags>
+    <PackageTags>mssql,mysql,oracle;dapper;sqlclient</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.30" />
-    <PackageReference Include="MySql.Data" Version="8.0.17" />
+    <PackageReference Include="Dapper" Version="2.0.90" />
   </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="1.0.19269.1" />
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.31" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-    <Reference Include="System.Transactions" />
-    <PackageReference Include="Oracle.ManagedDataAccess" Version="19.3.1" />
-  </ItemGroup>
-
 </Project>

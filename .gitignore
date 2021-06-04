@@ -84,3 +84,6 @@ UpgradeLog*.XML
 
 # NuGet packages folder
 /packages/
+
+# vscode debug folder
+.vscode
