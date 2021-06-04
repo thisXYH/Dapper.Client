@@ -5,11 +5,6 @@ VisualStudioVersion = 16.0.29324.140
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Client", "Dapper.Client\Dapper.Client.csproj", "{04AFBC37-A517-44D1-B67E-11BBD95C83A2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_docs", "_docs", "{C9BEB616-FDA3-4E94-B304-C2566ED338D5}"
-	ProjectSection(SolutionItems) = preProject
-		README.md = README.md
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Client.Sample", "Dapper.Client.Sample\Dapper.Client.Sample.csproj", "{C3553E92-122D-4FFD-BAEC-44F91BED37DA}"
 EndProject
 Global
