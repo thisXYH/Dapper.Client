@@ -3,6 +3,8 @@
 
 ## 为什么要封装
 * `Dapper` 是扩展到 `IDbConnection` 上，直接使用的话需要手动管理 `IDbConnection` 生命周期
+* 统一的 读/写超时时间 设置。
+* 事务管理，解决使用相同逻辑方法需要提供 `IDbConnection`、`IDbTransaction` 版，导致重复代码或者兼容代码。
 * `Dapper` 扩展的Api太多了，不少Api容易用歪（比如一次返回多个实体，根据某字段进行切分），需要做一层屏蔽，仅提供常用语义
     * 获取受影响行数
     * 是否存在某数据
@@ -11,7 +13,6 @@
     * 获取多行值
     * 获取一个表
     * 获取多个表
-* 解决使用相同逻辑方法需要提供 `IDbConnection`、`IDbTransaction` 版，导致重复代码或者兼容代码。
 
 ## 使用方式
 1. 引用包： dotnet add package Dapper.Client
