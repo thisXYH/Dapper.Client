@@ -18,4 +18,4 @@
 1. 继承 AbstractDbClient， 实现目标客户端
 2. 通过客户端访问数据库。
 
-> 具体操作查看示例项目  `Dapper.Client.Sample`
+> 具体操作查看示例项目 [`Dapper.Client.Sample`](https://github.com/thisXYH/Dapper.Client/tree/master/Dapper.Client.Sample)
